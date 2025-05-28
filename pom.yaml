@@ -6,27 +6,31 @@ version: 0.0.0
 
 packaging: pom
 
+modules:
+  - ingest
+
 properties:
-    kotlin.version: 2.1.10
-    maven.compiler.target: 21
-    maven.compiler.source: 21
-    kotlin.compiler.incremental: true
-    dep.junit: 4.13.1
+  kotlin.version: 2.1.10
+  maven.compiler.target: 21
+  maven.compiler.source: 21
+  kotlin.compiler.incremental: true
+  dep.junit: 4.13.1
+  dep.kaml: 0.77.1
 
 dependencies:
-    - {groupId: org.jetbrains.kotlin, artifactId: kotlin-stdlib, version: '${kotlin.version}'}
-    - {groupId: org.jetbrains.kotlin, artifactId: kotlin-test-junit, version: '${kotlin.version}', scope: test}
-    - {groupId: junit, artifactId: junit, version: '${dep.junit}', scope: test}
+  - { groupId: org.jetbrains.kotlin, artifactId: kotlin-stdlib, version: '${kotlin.version}' }
+  - { groupId: org.jetbrains.kotlin, artifactId: kotlin-test-junit, version: '${kotlin.version}', scope: test }
+  - { groupId: junit, artifactId: junit, version: '${dep.junit}', scope: test }
 
 build:
-    sourceDirectory: src/main
-    testSourceDirectory: src/test
-    resources:
-        - { directory: src/main/resources }
-    testResources:
-        - { directory: src/test/resources }
-    plugins:
-        - groupId: org.jetbrains.kotlin
-          artifactId: kotlin-maven-plugin
-          version: '${kotlin.version}'
-          extensions: true
+  sourceDirectory: src/main
+  testSourceDirectory: src/test
+  resources:
+    - { directory: src/main/resources }
+  testResources:
+    - { directory: src/test/resources }
+  plugins:
+    - groupId: org.jetbrains.kotlin
+      artifactId: kotlin-maven-plugin
+      version: '${kotlin.version}'
+      extensions: true
