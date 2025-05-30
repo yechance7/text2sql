@@ -22,6 +22,7 @@ properties:
   dep.langchain4j: 1.0.1
   dep.postgresql: 42.7.1
   dep.logback: 1.4.14
+  dep.jackson-kotlin: 2.19.0
 
 dependencies:
   - { groupId: org.jetbrains.kotlin, artifactId: kotlin-stdlib, version: '${kotlin.version}' }
