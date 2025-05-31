@@ -27,6 +27,8 @@ build:
       version: '${kotlin.version}'
       extensions: true
       configuration:
+        compilerArgs:
+          - '-java-parameters' # for @UserMessage annotation of langchain4j
         compilerPlugins:
           - kotlinx-serialization
       dependencies:
