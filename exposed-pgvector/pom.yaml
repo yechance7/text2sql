@@ -6,18 +6,13 @@ parent:
   version: 0.0.0
   relativePath: ../pom.yaml
 
-artifactId: ingest
+artifactId: exposed-pgvector
 packaging: jar
 
 dependencies:
   - { groupId: ch.qos.logback, artifactId: logback-classic, version: '${dep.logback}' }
-  - { groupId: dev.langchain4j, artifactId: langchain4j-open-ai, version: '${dep.langchain4j}' }
-  - { groupId: dev.langchain4j, artifactId: langchain4j, version: '${dep.langchain4j}' }
   - { groupId: org.jetbrains.kotlinx, artifactId: kotlinx-serialization-json, version: '${dep.kotlinx-json}' }
-  - { groupId: com.charleskorn.kaml, artifactId: kaml-jvm, version: '${dep.kaml}' }
-  - { groupId: com.fasterxml.jackson.module, artifactId: jackson-module-kotlin, version: '${dep.jackson-kotlin}' }
   - { groupId: org.jetbrains.exposed, artifactId: exposed-core, version: '${dep.exposed}' }
-  - { groupId: org.jetbrains.exposed, artifactId: exposed-jdbc, version: '${dep.exposed}' }
   - { groupId: org.postgresql, artifactId: postgresql, version: '${dep.postgresql}' }
 
 build:
