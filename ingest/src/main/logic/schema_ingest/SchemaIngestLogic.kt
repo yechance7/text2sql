@@ -1,7 +1,7 @@
 package io.ybigta.text2sql.ingest.logic.schema_ingest
 
-import io.ybigta.text2sql.ingest.llmendpoint.ExtractTableEntitiesEndpoint
-import io.ybigta.text2sql.ingest.llmendpoint.StuctureSchemaMkEndpoint
+import io.ybigta.text2sql.ingest.llmendpoint.StructureSchemaDocEndPoint
+import io.ybigta.text2sql.ingest.llmendpoint.TableEntitiesExtractionEndpoint
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -18,7 +18,7 @@ data class TableSchemaJson(
     val name: String,
     val purpose: String,
     val keys: String,
-    val connectedTables: String,
+    val connectedTables: List<String>,
     val columns: List<Column>,
     val strongEntities: List<String>,
     val weekEntities: List<String>,
@@ -34,15 +34,15 @@ data class TableSchemaJson(
 
 /**
  * TODO: INSERT INTO vector_db
- * extracting entities from table doc is done by selecting frequently appeared entities of multiple same [ExtractTableEntitiesEndpoint] request.
- * @param requestNum the number of same llm request to [ExtractTableEntitiesEndpoint].
+ * extracting entities from table doc is done by selecting frequently appeared entities of multiple same [TableEntitiesExtractionEndpoint] request.
+ * @param requestNum the number of same llm request to [TableEntitiesExtractionEndpoint].
  * @param frequencyStrong the numeber of entity appearance in multiple llm request treated as strong entity
  * @param frequencyWeek the numeber of entity appearance in multiple llm request treated as strong entity
  */
 suspend fun schemaIngrestLogic(
     schemaMarkdown: String,
-    structureMkEndpoint: StuctureSchemaMkEndpoint,
-    extractTableEntitiesEndpoint: ExtractTableEntitiesEndpoint,
+    structureMkEndpoint: StructureSchemaDocEndPoint,
+    tableEntitiesExtractionEndpoint: TableEntitiesExtractionEndpoint,
     requestNum: Int = 7,
     frequencyStrong: Int = 3,
     frequencyWeek: Int = 2,
@@ -54,7 +54,7 @@ suspend fun schemaIngrestLogic(
     logger.debug("reqeust for entities extraction. will request ${requestNum} times")
     // request multiple sam llm request then select most frequent
     val extractedEntitiesList = (1..requestNum)
-        .map { async { extractTableEntitiesEndpoint.request(tableSchemaJsonWithoutEntities) } }
+        .map { async { tableEntitiesExtractionEndpoint.request(tableSchemaJsonWithoutEntities) } }
         .awaitAll()
 
     val entityFrequecies = extractedEntitiesList

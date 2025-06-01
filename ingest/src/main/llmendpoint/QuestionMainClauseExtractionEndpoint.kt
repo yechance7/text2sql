@@ -1,6 +1,6 @@
 package io.ybigta.text2sql.ingest.llmendpoint
 
-interface MainClauseExtractionEndpoint {
+interface QuestionMainClauseExtractionEndpoint {
     /**
      * request llm to extract main clauses from give natural language question
      */

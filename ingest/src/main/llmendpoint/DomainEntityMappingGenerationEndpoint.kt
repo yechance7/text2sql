@@ -5,7 +5,7 @@ import dev.langchain4j.service.V
 import io.ybigta.text2sql.ingest.logic.qa_ingest.DomainEntitiyMapping
 import io.ybigta.text2sql.ingest.logic.qa_ingest.TableSelection
 
-interface DomainEntityDocumentGenerateEndpoint {
+interface DomainEntityMappingGenerationEndpoint {
     @UserMessage("""
     question: {{question}} 
     source_tables: {{tableSelections}}

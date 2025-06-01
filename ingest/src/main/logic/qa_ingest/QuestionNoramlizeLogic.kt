@@ -1,6 +1,6 @@
 package io.ybigta.text2sql.ingest.logic.qa_ingest
 
-import io.ybigta.text2sql.ingest.llmendpoint.MainClauseExtractionEndpoint
+import io.ybigta.text2sql.ingest.llmendpoint.QuestionMainClauseExtractionEndpoint
 import io.ybigta.text2sql.ingest.llmendpoint.QuestionNormalizeAndStructureEndpoint
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -41,13 +41,13 @@ private val logger = LoggerFactory.getLogger("ingress.ga-ingress.normalizeAndStr
 suspend fun normalizeQuestionLogic(
     qa: Qa,
     questionNormalizeAndStructureEndpoint: QuestionNormalizeAndStructureEndpoint,
-    mainClauseExtractionEndpoint: MainClauseExtractionEndpoint,
+    questionMainClauseExtractionEndpoint: QuestionMainClauseExtractionEndpoint,
 ): NormalizedQa = coroutineScope {
 
     logger.debug("requesting llm for normalize and struct")
     val normalizedQa = async { questionNormalizeAndStructureEndpoint.request(qa.question, qa.answer) }
     logger.debug("requesting llm for extract mainClause from")
-    val mainClause = async { mainClauseExtractionEndpoint.request(qa.question) }
+    val mainClause = async { questionMainClauseExtractionEndpoint.request(qa.question) }
 
     return@coroutineScope normalizedQa.await().copy(
         mainClause = mainClause.await()

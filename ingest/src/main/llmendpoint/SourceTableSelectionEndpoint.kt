@@ -4,7 +4,7 @@ import dev.langchain4j.service.UserMessage
 import dev.langchain4j.service.V
 import io.ybigta.text2sql.ingest.logic.qa_ingest.TableSelection
 
-interface TableSelectionEndpoint {
+interface SourceTableSelectionEndpoint {
     @UserMessage( """
     question: {{question}}
     corresponding_sql: {{answersql}}

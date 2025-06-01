@@ -1,8 +1,8 @@
 package io.ybigta.text2sql.ingest.logic.qa_ingest
 
-import io.ybigta.text2sql.ingest.llmendpoint.DomainEntityDocumentGenerateEndpoint
-import io.ybigta.text2sql.ingest.llmendpoint.DomainSpecificEntitiesExtractionEndpoint
-import io.ybigta.text2sql.ingest.llmendpoint.TableSelectionEndpoint
+import io.ybigta.text2sql.ingest.llmendpoint.DomainEntityMappingGenerationEndpoint
+import io.ybigta.text2sql.ingest.llmendpoint.DomainEntitiesExtractionEndpoint
+import io.ybigta.text2sql.ingest.llmendpoint.SourceTableSelectionEndpoint
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.asFlow
@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.toSet
 
 
 /**
- * response of [TableSelectionEndpoint]
+ * response of [SourceTableSelectionEndpoint]
  */
 data class TableSelection(
     val tableName: String,
@@ -38,17 +38,17 @@ suspend fun domainExtractionLogic(
     qa: Qa,
     tables: Set<String>,
     rules: Set<String>,
-    tableSelectionEndpoint: TableSelectionEndpoint,
-    domainSpecificEntitiesExtractionEndpoint: DomainSpecificEntitiesExtractionEndpoint,
-    domainEntityDocumentGenerateEndpoint: DomainEntityDocumentGenerateEndpoint,
+    sourceTableSelectionEndpoint: SourceTableSelectionEndpoint,
+    domainEntitiesExtractionEndpoint: DomainEntitiesExtractionEndpoint,
+    domainEntityMappingGenerationEndpoint: DomainEntityMappingGenerationEndpoint,
 ): Set<DomainEntitiyMapping> = coroutineScope {
-    val tableSelection = tableSelectionEndpoint.reqeust(qa.question, qa.answer, rules, tables)
-    val extractedEntities = domainSpecificEntitiesExtractionEndpoint.reqeust(tableSelection)
+    val tableSelection: Set<TableSelection> = sourceTableSelectionEndpoint.reqeust(qa.question, qa.answer, rules, tables)
+    val extractedEntities: Set<String> = domainEntitiesExtractionEndpoint.reqeust(tableSelection)
 
-    val domainEntitymappings = extractedEntities
+    val domainEntitymappings: Set<DomainEntitiyMapping> = extractedEntities
         .map {
             async {
-                domainEntityDocumentGenerateEndpoint.request(qa.question, tableSelection)
+                domainEntityMappingGenerationEndpoint.request(qa.question, tableSelection)
             }
         }
         .asFlow()

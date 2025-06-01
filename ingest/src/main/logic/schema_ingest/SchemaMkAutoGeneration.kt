@@ -1,6 +1,6 @@
 package io.ybigta.text2sql.ingest.logic.schema_ingest
 
-import io.ybigta.text2sql.ingest.llmendpoint.SchemaMkAutoGenerateEndpoint
+import io.ybigta.text2sql.ingest.llmendpoint.SchemaMarkdownGenerationEndpoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
@@ -29,7 +29,7 @@ import kotlin.time.Duration.Companion.seconds
  */
 fun autoGenerateSchemaMkLogic(
     db: Database,
-    schemaMkAutoGenerateEndpoint: SchemaMkAutoGenerateEndpoint,
+    schemaMarkdownGenerationEndpoint: SchemaMarkdownGenerationEndpoint,
     internval: Duration = 5.seconds
 ): Flow<Triple<String, String, String>> = channelFlow {
 
@@ -44,7 +44,7 @@ fun autoGenerateSchemaMkLogic(
                 Triple(
                     tableSchema.tableName,
                     tableSchema.schemaName,
-                    schemaMkAutoGenerateEndpoint.request(Json.encodeToJsonElement(tableSchema) as JsonObject)
+                    schemaMarkdownGenerationEndpoint.request(Json.encodeToJsonElement(tableSchema) as JsonObject)
                 ).let { send(it) }
             }
             delay(internval)

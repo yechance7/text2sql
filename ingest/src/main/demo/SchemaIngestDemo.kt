@@ -6,9 +6,9 @@ import dev.langchain4j.model.openai.OpenAiChatModelName
 import dev.langchain4j.model.openai.OpenAiEmbeddingModel
 import dev.langchain4j.model.openai.OpenAiEmbeddingModelName
 import dev.langchain4j.service.AiServices
-import io.ybigta.text2sql.ingest.llmendpoint.ExtractTableEntitiesEndpoint
-import io.ybigta.text2sql.ingest.llmendpoint.SchemaMkAutoGenerateEndpoint
-import io.ybigta.text2sql.ingest.llmendpoint.StuctureSchemaMkEndpoint
+import io.ybigta.text2sql.ingest.llmendpoint.TableEntitiesExtractionEndpoint
+import io.ybigta.text2sql.ingest.llmendpoint.SchemaMarkdownGenerationEndpoint
+import io.ybigta.text2sql.ingest.llmendpoint.StructureSchemaDocEndPoint
 import io.ybigta.text2sql.ingest.logic.schema_ingest.autoGenerateSchemaMkLogic
 import io.ybigta.text2sql.ingest.logic.schema_ingest.schemaIngrestLogic
 import io.ybigta.text2sql.ingest.vectordb.TableSchemaDocRepository
@@ -73,20 +73,20 @@ fun main() {
     /**
      * declare llm endpoints
      */
-    val schemaMkAutoGenerateEndpoint = AiServices
-        .builder(SchemaMkAutoGenerateEndpoint::class.java)
+    val schemaMarkdownGenerationEndpoint = AiServices
+        .builder(SchemaMarkdownGenerationEndpoint::class.java)
         .chatModel(llmModel)
         .systemMessageProvider { _ -> DemoSystemPrompts.schemaMkAutoGenerateSystemPrompt }
         .build()
 
-    val structureSchemaMkEndpoint = AiServices
-        .builder(StuctureSchemaMkEndpoint::class.java)
+    val structureSchemaDocEndPoint = AiServices
+        .builder(StructureSchemaDocEndPoint::class.java)
         .chatModel(llmModel)
         .systemMessageProvider { _ -> DemoSystemPrompts.stuctureSchemaMkEndpointSystemPrompt }
         .build()
 
-    val extractTableEntitiesEndpoint = AiServices
-        .builder(ExtractTableEntitiesEndpoint::class.java)
+    val tableEntitiesExtractionEndpoint = AiServices
+        .builder(TableEntitiesExtractionEndpoint::class.java)
         .chatModel(llmModel)
         .systemMessageProvider { _ -> DemoSystemPrompts.extractTableEntitiesEndpointSystemPrompt }
         .build()
@@ -98,7 +98,7 @@ fun main() {
     runBlocking(Dispatchers.IO) {
         val tableSchemaFlow: Flow<Triple<String, String, String>> = autoGenerateSchemaMkLogic(
             db = sourceDB,
-            schemaMkAutoGenerateEndpoint = schemaMkAutoGenerateEndpoint,
+            schemaMarkdownGenerationEndpoint = schemaMarkdownGenerationEndpoint,
             internval = 3.seconds
         )
 
@@ -108,8 +108,8 @@ fun main() {
                 async {
                     schemaIngrestLogic(
                         schemaMarkdown = markdownDoc,
-                        structureMkEndpoint = structureSchemaMkEndpoint,
-                        extractTableEntitiesEndpoint = extractTableEntitiesEndpoint
+                        structureMkEndpoint = structureSchemaDocEndPoint,
+                        tableEntitiesExtractionEndpoint = tableEntitiesExtractionEndpoint
                     )
                         .also { schema -> logger.info("received schema json (table=${schema.name})") }
                         .let { schema -> schemaDocRepo.insertAndGetId(schemaName, tableName, schema) }
