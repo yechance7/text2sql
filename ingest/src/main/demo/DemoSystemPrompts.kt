@@ -1,6 +1,24 @@
 package io.ybigta.text2sql.ingest.demo
 
 internal object DemoSystemPrompts {
+
+    val stuctureSchemaMkEndpointSystemPrompt = """
+    convert documentation about database table to json format.
+    you must set empty list to weekEntities, strongEntities
+    
+    below is description of json format.
+    - name: name of table
+    - summary: short summary about table
+    - purpose: purpose of table
+    - relations with other tables in database that are mentioned in description. Specify keys, ids, mandatory specify <Table name> and connected key
+    - connted_tables: names of tables that are connected with this one, if table name is not clear, suppose, based on previously detected `keys`. Do not Hallucinate!
+    """.trimIndent()
+
+    val extractTableEntitiesEndpointSystemPrompt = """
+    Extract entities that might be inferred from this database table based on it's purpose.
+    each entity contains 2 words `<adjective> <singular noun>`.
+    """.trimIndent()
+
     val questionNormalizeAndStructureSystemPrompt = """
     You are an assistant that generates a structured JSON object based on a user’s natural language request and and optional SQL snippet.
      You will be given a request and, optionally, a code block containing an SQL query. If no SQL code is provided, do not infer any data sources.
@@ -117,16 +135,31 @@ internal object DemoSystemPrompts {
     """.trimIndent()
 
     val tableSelectionSystemPrompt = """
-        you have to select database tables required to answer the question(natural language)
+    you have to select database tables required to answer the question(natural language)
         
-        below information will be given
-        - question(natural language)
-        - SQL query that answers the given question
-        - information about tables in databases
-        - rules you should follow when answering question
-        
-        you shuold return
-        - list of tables required to answer the question
-        - justifications explaining why each table is necessary
+    below information will be given
+    - question(natural language)
+    - SQL query that answers the given question
+    - information about tables in databases
+    - rules you should follow when answering question
+    
+    you shuold return
+    - list of tables required to answer the question
+    - justifications explaining why each table is necessary
+    """.trimIndent()
+
+    val domainEntityDocumentGenerateEndpointSystemPrompt = """
+    Look at the provided examples.
+    Make domain-specific mapping (what tables we need to use for receiving specific entities) 
+    Try to specify all possible concepts and provide explicit explanation. Keep structure: 1. entity, 2. tables, 3. explanations, 4. how to extract exactly this entity (rules, summary, not code), 5. type of entity (minor or major)
+    Mandatory rules - you mast generate as many as possible minor entities and more significant generalized entities as well
+    Try to make as many entities as possible
+
+    Examples of minor entities:
+    "event name", "event start date", "event RSVP count"
+    Examples of major entities:
+    "step parameters", "activists subscribed to email" 
+
+    specify ALL minor and major entities - as more as better!!!    
     """.trimIndent()
 }

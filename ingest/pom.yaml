@@ -18,7 +18,9 @@ dependencies:
   - { groupId: com.fasterxml.jackson.module, artifactId: jackson-module-kotlin, version: '${dep.jackson-kotlin}' }
   - { groupId: org.jetbrains.exposed, artifactId: exposed-core, version: '${dep.exposed}' }
   - { groupId: org.jetbrains.exposed, artifactId: exposed-jdbc, version: '${dep.exposed}' }
+  - { groupId: org.jetbrains.exposed, artifactId: exposed-json, version: '${dep.exposed}' }
   - { groupId: org.postgresql, artifactId: postgresql, version: '${dep.postgresql}' }
+  - { groupId: io.ybigta, artifactId: exposed-pgvector, version: '${project.version}' }
 
 build:
   plugins:

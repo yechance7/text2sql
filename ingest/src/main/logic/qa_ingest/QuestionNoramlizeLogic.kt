@@ -44,13 +44,13 @@ suspend fun normalizeQuestionLogic(
     mainClauseExtractionEndpoint: MainClauseExtractionEndpoint,
 ): NormalizedQa = coroutineScope {
 
-    logger.debug("requesting lllm for normalize and struct ${qa}")
+    logger.debug("requesting llm for normalize and struct")
     val normalizedQa = async { questionNormalizeAndStructureEndpoint.request(qa.question, qa.answer) }
-    logger.debug("requesting lllm for extract mainClause from ${qa}")
+    logger.debug("requesting llm for extract mainClause from")
     val mainClause = async { mainClauseExtractionEndpoint.request(qa.question) }
 
     return@coroutineScope normalizedQa.await().copy(
         mainClause = mainClause.await()
     )
-    
+
 }
