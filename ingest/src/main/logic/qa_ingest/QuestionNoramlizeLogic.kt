@@ -7,13 +7,14 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.Serializable
 import org.slf4j.LoggerFactory
 
+@Serializable
 data class Qa(
     val question: String, // natural language
     val answer: String // SQL
 )
 
 @Serializable
-data class NormalizedQa(
+data class StructuredQa(
     val question: String,
     val normalizedQuestion: String,
     val requestedEntities: String,
@@ -38,11 +39,11 @@ data class NormalizedQa(
 
 private val logger = LoggerFactory.getLogger("ingress.ga-ingress.normalizeAndStructure")
 
-suspend fun normalizeQuestionLogic(
+suspend fun normalizeAndStructureQuestionLogic(
     qa: Qa,
     questionNormalizeAndStructureEndpoint: QuestionNormalizeAndStructureEndpoint,
     questionMainClauseExtractionEndpoint: QuestionMainClauseExtractionEndpoint,
-): NormalizedQa = coroutineScope {
+): StructuredQa = coroutineScope {
 
     logger.debug("requesting llm for normalize and struct")
     val normalizedQa = async { questionNormalizeAndStructureEndpoint.request(qa.question, qa.answer) }
@@ -52,5 +53,4 @@ suspend fun normalizeQuestionLogic(
     return@coroutineScope normalizedQa.await().copy(
         mainClause = mainClause.await()
     )
-
 }

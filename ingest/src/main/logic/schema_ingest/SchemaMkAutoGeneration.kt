@@ -17,6 +17,9 @@ import java.sql.ResultSet
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
+
+private val logger = LoggerFactory.getLogger("autoGenerateSchemaMkLogic")
+
 /**
  * this logic is not part of schema ingest logic.
  * but it helps user to auto-generate schema markdown documents instead of hand-writting them
@@ -41,6 +44,7 @@ fun autoGenerateSchemaMkLogic(
         .requestTableSchemas(db)
         .forEach { tableSchema ->
             launch {
+                logger.debug("request table markdown generation(schema={},table={})", tableSchema.schemaName, tableSchema.tableName)
                 Triple(
                     tableSchema.tableName,
                     tableSchema.schemaName,

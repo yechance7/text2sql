@@ -1,14 +1,9 @@
 package io.ybigta.text2sql.ingest.logic.qa_ingest
 
 import io.ybigta.text2sql.ingest.llmendpoint.DomainEntityMappingGenerationEndpoint
-import io.ybigta.text2sql.ingest.llmendpoint.DomainEntitiesExtractionEndpoint
 import io.ybigta.text2sql.ingest.llmendpoint.SourceTableSelectionEndpoint
-import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.flatMapMerge
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.toSet
+import kotlinx.serialization.Serializable
 
 
 /**
@@ -19,6 +14,7 @@ data class TableSelection(
     val justification: String
 )
 
+@Serializable
 data class DomainEntitiyMapping(
     val entityName: String,
     val entityConceptualRole: String,
@@ -39,22 +35,11 @@ suspend fun domainExtractionLogic(
     tables: Set<String>,
     rules: Set<String>,
     sourceTableSelectionEndpoint: SourceTableSelectionEndpoint,
-    domainEntitiesExtractionEndpoint: DomainEntitiesExtractionEndpoint,
     domainEntityMappingGenerationEndpoint: DomainEntityMappingGenerationEndpoint,
-): Set<DomainEntitiyMapping> = coroutineScope {
-    val tableSelection: Set<TableSelection> = sourceTableSelectionEndpoint.reqeust(qa.question, qa.answer, rules, tables)
-    val extractedEntities: Set<String> = domainEntitiesExtractionEndpoint.reqeust(tableSelection)
+): List<DomainEntitiyMapping> = coroutineScope {
 
-    val domainEntitymappings: Set<DomainEntitiyMapping> = extractedEntities
-        .map {
-            async {
-                domainEntityMappingGenerationEndpoint.request(qa.question, tableSelection)
-            }
-        }
-        .asFlow()
-        .flatMapMerge { it.await().asFlow() }
-        .onEach { println("got it") }
-        .toSet()
+    val tableSelection: Set<TableSelection> = sourceTableSelectionEndpoint.reqeust(qa.question, qa.answer, rules, tables)
+    val domainEntitymappings = domainEntityMappingGenerationEndpoint.request(qa.question, tableSelection)
 
     return@coroutineScope domainEntitymappings
 }

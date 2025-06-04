@@ -7,8 +7,6 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.Serializable
 import org.slf4j.LoggerFactory
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
 
 
 private val logger = LoggerFactory.getLogger("ingress.schema-ingress")
@@ -17,6 +15,8 @@ private val logger = LoggerFactory.getLogger("ingress.schema-ingress")
 data class TableSchemaJson(
     val name: String,
     val purpose: String,
+    val summary: String,
+    val dependenciesThought: String,
     val keys: String,
     val connectedTables: List<String>,
     val columns: List<Column>,
@@ -29,6 +29,23 @@ data class TableSchemaJson(
         val column: String,
         val description: String
     )
+
+    fun toDescription(): String = """
+    table: ${this.name}
+    
+    # description
+    ${this.summary}
+    ${this.purpose}
+    """.trimIndent()
+
+    fun toDescriptionWithDependencies(): String = """
+    table: ${this.name}
+    
+    # description
+    ${this.summary}
+    ${this.purpose}
+    ${this.dependenciesThought}
+    """.trimIndent()
 }
 
 
@@ -46,10 +63,10 @@ suspend fun schemaIngrestLogic(
     requestNum: Int = 7,
     frequencyStrong: Int = 3,
     frequencyWeek: Int = 2,
-    interval: Duration = 3.seconds
 ): TableSchemaJson = coroutineScope {
     logger.debug("reqeust for table schema makrdown doc to json")
     val tableSchemaJsonWithoutEntities: TableSchemaJson = structureMkEndpoint.request(schemaMarkdown)
+    logger.debug("${tableSchemaJsonWithoutEntities}")
 
     logger.debug("reqeust for entities extraction. will request ${requestNum} times")
     // request multiple sam llm request then select most frequent

@@ -61,7 +61,7 @@ class IngestConfig(
 
     companion object {
         fun fromConfigFile(path: Path): IngestConfig = path
-            .also { require(it.fileName.endsWith("yaml") || it.fileName.endsWith("yml")) }
+            // .also { require(it.fileName.endsWith("yaml") || it.fileName.endsWith("yml")) }
             .toAbsolutePath()
             .normalize()
             .readText()
