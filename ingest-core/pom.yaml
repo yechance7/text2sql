@@ -6,7 +6,7 @@ parent:
   version: 0.0.0
   relativePath: ../pom.yaml
 
-artifactId: ingest
+artifactId: ingest-core
 packaging: jar
 
 dependencies:

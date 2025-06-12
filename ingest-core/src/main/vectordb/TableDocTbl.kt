@@ -1,6 +1,7 @@
 package io.ybigta.text2sql.ingest.vectordb
 
 import dev.langchain4j.model.embedding.EmbeddingModel
+import io.ybigta.text2sql.exposed.pgvector.pgVector
 import io.ybigta.text2sql.ingest.logic.schema_ingest.TableSchemaJson
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -10,7 +11,6 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.json.jsonb
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import pgVector
 
 object TableDocTbl : IntIdTable("table_doc", "table_doc_id") {
     val schema = varchar("schema_name", 255)

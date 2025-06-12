@@ -1,3 +1,5 @@
+package io.ybigta.text2sql.exposed.pgvector
+
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.wrap
 

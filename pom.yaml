@@ -7,7 +7,7 @@ version: 0.0.0
 packaging: pom
 
 modules:
-  - ingest
+  - ingest-core
   - exposed-pgvector
 
 properties:

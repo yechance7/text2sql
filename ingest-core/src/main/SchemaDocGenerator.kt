@@ -24,7 +24,7 @@ class SchemaDocGenerator(
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     suspend fun generate() {
-        logger.info("auto generating table schema makrdown document!!!")
+        logger.info("auto generating table schema markdown document!!!")
         val saveBaseDir = saveDir.toAbsolutePath().normalize().also { it.createDirectories() }
 
         val tableSchemaDocs: Flow<Triple<String, String, String>> = autoGenerateSchemaMkLogic(
