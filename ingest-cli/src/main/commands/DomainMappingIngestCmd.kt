@@ -6,14 +6,8 @@ import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.path
 import io.ybigta.text2sql.ingest.DomainMappingIngester
 import io.ybigta.text2sql.ingest.config.IngestConfig
-import io.ybigta.text2sql.ingest.vectordb.TableDocTbl
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.transactions.transaction
-import vectordb.DomainEntityMappingTbl
-import vectordb.QaEmbeddingTbl
-import vectordb.QaTbl
 import java.nio.file.Path
 
 internal class DomainMappingIngestCmd : CliktCommand("ingest-domain-mapping") {
@@ -25,10 +19,10 @@ internal class DomainMappingIngestCmd : CliktCommand("ingest-domain-mapping") {
         val dispatcher = newFixedThreadPoolContext(50, "worker")
 
 
-        transaction(config.pgvector) {
-            exec("""CREATE EXTENSION IF NOT EXISTS vector;""") // load pgvector extension
-            SchemaUtils.create(QaTbl, TableDocTbl, QaEmbeddingTbl, DomainEntityMappingTbl) // create table if not exists
-        }
+        // transaction(config.pgvector) {
+        //     exec("""CREATE EXTENSION IF NOT EXISTS vector;""") // load pgvector extension
+        //     SchemaUtils.create(QaTbl, TableDocTbl, QaEmbeddingTbl, DomainEntityMappingTbl) // create table if not exists
+        // }
 
         runBlocking(dispatcher) { domainIngester.ingest() }
     }

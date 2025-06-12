@@ -1,12 +1,14 @@
 package io.ybigta.text2sql.ingest.llmendpoint
 
-import io.ybigta.text2sql.ingest.logic.schema_ingest.TableSchema
+import io.ybigta.text2sql.ingest.logic.doc_gene.TableSchema
 import kotlinx.serialization.json.JsonObject
 
-interface SchemaMarkdownGenerationEndpoint {
+internal interface SchemaMarkdownGenerationEndpoint {
     /**
-     * @param tableSchmea: Serialized json of [TableSchema]
+     * auto-generate markdown schema documentation based on [tableSchema]
+     *
+     * @param tableSchema: Serialized json of [TableSchema]
      * @return markdown document about table schema
      */
-    fun request(tableSchmea: JsonObject): String
+    fun request(tableSchema: JsonObject): String
 }

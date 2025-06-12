@@ -1,82 +1,25 @@
-package io.ybigta.text2sql.ingest.logic.schema_ingest
+package io.ybigta.text2sql.ingest.logic.doc_gene
 
-import io.ybigta.text2sql.ingest.llmendpoint.SchemaMarkdownGenerationEndpoint
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.encodeToJsonElement
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.LoggerFactory
 import java.sql.ResultSet
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
-
-
-private val logger = LoggerFactory.getLogger("autoGenerateSchemaMkLogic")
 
 /**
- * this logic is not part of schema ingest logic.
- * but it helps user to auto-generate schema markdown documents instead of hand-writting them
- *
- * what it does:
- * 1. query schema information to database
- * 2. request llm to generate markdown about table schema
- *
- * @return list of Triple(tableName, schemaName, markdownDoc)
- */
-fun autoGenerateSchemaMkLogic(
-    db: Database,
-    schemaMarkdownGenerationEndpoint: SchemaMarkdownGenerationEndpoint,
-    internval: Duration = 5.seconds
-): Flow<Triple<String, String, String>> = channelFlow {
-
-    val databaseSchemaIngester: DatabaseSchemaIngester = when (db.vendor) {
-        "PostgreSQLNG", "PostgreSQL" -> PostgresSchemaIngester()
-        else -> throw IllegalStateException("(${db.vendor}) is not supported database")
-    }
-    databaseSchemaIngester
-        .requestTableSchemas(db)
-        .forEach { tableSchema ->
-            launch {
-                logger.debug("request table markdown generation(schema={},table={})", tableSchema.schemaName, tableSchema.tableName)
-                Triple(
-                    tableSchema.tableName,
-                    tableSchema.schemaName,
-                    schemaMarkdownGenerationEndpoint.request(Json.encodeToJsonElement(tableSchema) as JsonObject)
-                ).let { send(it) }
-            }
-            delay(internval)
-        }
-}
-
-
-/**
- * ingest table schemas from database.
+ * ingest table schemas(information) from database.
  * currently only postrgres is only supported DB.
- * will be add on require.
  */
-private sealed interface DatabaseSchemaIngester {
-    fun requestTableSchemas(db: Database): List<TableSchema>
+internal sealed interface DatabaseSchemaIngester {
+    fun requestTableSchemas(): List<TableSchema>
 }
 
-@Serializable
-data class TableSchema(
-    val tableName: String,
-    val schemaName: String,
-    val columns: List<Map<String, String?>>
-)
-
-
-private class PostgresSchemaIngester : DatabaseSchemaIngester {
+internal class PostgresSchemaIngester(
+    private val db: Database
+) : DatabaseSchemaIngester {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    override fun requestTableSchemas(db: Database): List<TableSchema> = transaction(db) {
+    override fun requestTableSchemas(): List<TableSchema> = transaction(db) {
         logger.info("requesting postgresql for list of tables")
 
         val tables: List<Pair<String, String>> = """
@@ -88,7 +31,7 @@ private class PostgresSchemaIngester : DatabaseSchemaIngester {
 
 
         return@transaction tables.map { (schemaName, tableName) ->
-            logger.debug("requesting postgresql for table defintion(tableName=${tableName} schemaName=${schemaName})")
+            logger.debug("requesting postgresql for table defintion(tableName={} schemaName={})", tableName, schemaName)
             val columnsInfo: List<Map<String, String?>> = """
 			SELECT
 			    c.table_schema,
@@ -142,10 +85,6 @@ private class PostgresSchemaIngester : DatabaseSchemaIngester {
 
 /**
  * below is util functions for jdbc and exposed
- */
-
-
-/**
  * util function for execute raw sql string and map it's ResultSet
  */
 private fun <T> String.execSql(transaction: Transaction, fn: (ResultSet) -> T): List<T> = transaction.exec(this) { rs -> rs.map(fn).toList() }!!
@@ -155,20 +94,19 @@ private fun <T> ResultSet.map(fn: (ResultSet) -> T): Iterable<T> {
     val rs = this
 
     val iterator = object : Iterator<T> {
-        public override fun hasNext(): Boolean = rs.next()
+        override fun hasNext(): Boolean = rs.next()
 
-        public override fun next(): T = fn(rs)
+        override fun next(): T = fn(rs)
     }
 
     return object : Iterable<T> {
-        public override fun iterator(): Iterator<T> = iterator
+        override fun iterator(): Iterator<T> = iterator
     }
 }
 
 /**
  * NOTE: getXxx of JDBC could returns NULL. so wrapping it for null safety
  */
-
 private fun ResultSet.getStringOrNull(columnName: String): String? {
     return wasNull(this, getString(columnName))
 }

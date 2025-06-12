@@ -3,8 +3,8 @@ package io.ybigta.text2sql.ingest
 import io.ybigta.text2sql.ingest.config.IngestConfig
 import io.ybigta.text2sql.ingest.config.LLMEndpointBuilder
 import io.ybigta.text2sql.ingest.logic.schema_ingest.schemaIngrestLogic
-import io.ybigta.text2sql.ingest.vectordb.TableDocEmbeddingRepository
-import io.ybigta.text2sql.ingest.vectordb.TableDocRepository
+import io.ybigta.text2sql.ingest.vectordb.repositories.TableDocEmbeddingRepository
+import io.ybigta.text2sql.ingest.vectordb.repositories.TableDocRepository
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.channelFlow
@@ -14,10 +14,15 @@ import java.nio.file.Path
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.pathString
 import kotlin.io.path.readText
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
+/**
+ * read table information from makrdown documentations then insert into vectordb.
+ */
 class SchemaIngester(
-    private val ingestConfig: IngestConfig
+    private val ingestConfig: IngestConfig,
+    private val interval: Duration = 2.seconds
 ) {
     private val schemaDocDir: Path = ingestConfig.config.resources.schemaMarkdownDir.toAbsolutePath()
 
@@ -47,7 +52,7 @@ class SchemaIngester(
         var cnt = 0;
         channelFlow {
             schemaDocs.forEach { (schemaName, tableName, schemaDoc) ->
-                delay(2.seconds)
+                delay(interval)
                 async {
                     schemaIngrestLogic(
                         schemaDoc,

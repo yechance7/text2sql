@@ -2,19 +2,20 @@ package io.ybigta.text2sql.ingest
 
 import io.ybigta.text2sql.ingest.config.IngestConfig
 import io.ybigta.text2sql.ingest.config.LLMEndpointBuilder
+import io.ybigta.text2sql.ingest.logic.domain_mapping_ingest.domainExtractionLogic
 import io.ybigta.text2sql.ingest.logic.qa_ingest.Qa
-import io.ybigta.text2sql.ingest.logic.qa_ingest.domainExtractionLogic
-import io.ybigta.text2sql.ingest.vectordb.TableDocRepository
+import io.ybigta.text2sql.ingest.vectordb.repositories.DomainEntityMappingRepository
+import io.ybigta.text2sql.ingest.vectordb.repositories.QaRepository
+import io.ybigta.text2sql.ingest.vectordb.repositories.TableDocRepository
+import io.ybigta.text2sql.ingest.vectordb.tables.QaTbl
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
-import vectordb.DomainEntityMappingRepository
-import vectordb.QaRepository
-import vectordb.QaTbl
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 /**
@@ -28,9 +29,9 @@ import kotlin.time.Duration.Companion.seconds
  * - classificatioin type(MINOR, MAJOR)
  *
  */
-
 class DomainMappingIngester(
-    private val ingestConfig: IngestConfig
+    private val ingestConfig: IngestConfig,
+    private val interval: Duration = 1.seconds
 ) {
 
     private val sourceTableSelectionEndpoint = LLMEndpointBuilder.DomainEntityMappingIngest.buildSourceTableSelectionEndpoint(ingestConfig)
@@ -51,9 +52,9 @@ class DomainMappingIngester(
         val qaList: List<QaTbl.Dto> = qaRepository.findAll()
 
         var cnt = AtomicInteger(0)
+
         channelFlow {
             qaList.forEach { qaDto ->
-                delay(1.seconds)
                 val result = async {
                     domainExtractionLogic(
                         qa = Qa(qaDto.question, qaDto.answer),
@@ -63,13 +64,13 @@ class DomainMappingIngester(
                         domainEntityMappingGenerationEndpoint
                     ).map { entityMapping -> Pair(qaDto, entityMapping) }
                 }
+                delay(interval)
                 send(result)
             }
         }
             .map { it.await() }
             .onEach { logger.info("[{}/{}] received llm output!", cnt.addAndGet(1), qaList.size) }
             .flatMapConcat { it.asFlow() }
-            .onEach { logger.trace("{}", it.second) }
             .collect { (qaDto, entityMapping) ->
                 domainEntityMappingRepository.insertAndGetId(qaDto.id, entityMapping)
 

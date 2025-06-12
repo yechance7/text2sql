@@ -12,7 +12,6 @@ import java.nio.file.Path
 
 /**
  * define spec of `ingest_config.yaml`
- *
  * serialize via kaml(kotlinx serialization yaml package)
  */
 @Serializable

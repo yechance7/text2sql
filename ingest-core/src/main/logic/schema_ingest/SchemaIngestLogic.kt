@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory
 private val logger = LoggerFactory.getLogger("ingress.schema-ingress")
 
 @Serializable
-data class TableSchemaJson(
+internal data class TableSchemaJson(
     val name: String,
     val purpose: String,
     val summary: String,
@@ -57,7 +57,7 @@ data class TableSchemaJson(
  * @param frequencyStrong the numeber of entity appearance in multiple llm request treated as strong entity
  * @param frequencyWeek the numeber of entity appearance in multiple llm request treated as strong entity
  */
-suspend fun schemaIngrestLogic(
+internal suspend fun schemaIngrestLogic(
     schemaMarkdown: String,
     structureMkEndpoint: StructureSchemaDocEndPoint,
     tableEntitiesExtractionEndpoint: TableEntitiesExtractionEndpoint,

@@ -1,36 +1,16 @@
-package io.ybigta.text2sql.ingest.vectordb
+package io.ybigta.text2sql.ingest.vectordb.repositories
 
 import dev.langchain4j.model.embedding.EmbeddingModel
-import io.ybigta.text2sql.exposed.pgvector.pgVector
 import io.ybigta.text2sql.ingest.logic.schema_ingest.TableSchemaJson
+import io.ybigta.text2sql.ingest.vectordb.tables.TableDocEmbddingTbl
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.insertAndGetId
-import org.jetbrains.exposed.sql.json.jsonb
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
-object TableDocTbl : IntIdTable("table_doc", "table_doc_id") {
-    val schema = varchar("schema_name", 255)
-    val table = varchar("table_name", 255)
-    val schemaJson = jsonb<TableSchemaJson>("schema_json", Json)
-}
-
-object TableDocEmbddingTbl : IntIdTable("table_doc_embedding", "table_doc_embedding_id") {
-    val tableDoc = reference("table_doc_id", TableDocTbl)
-    val embedding = pgVector("embedding", 1536)
-    val data = text("data")
-
-    val embeddingCategory = enumerationByName<EmbeddingCategory>("embedding_category", 40)
-
-    enum class EmbeddingCategory {
-        CONNECTED_TABLES, TABLE_NAME, DESCRIPTION, DESCRIPTION_DEPENDENCIES, ENTITY
-    }
-}
-
-class TableDocEmbeddingRepository(
+internal class TableDocEmbeddingRepository(
     private val db: Database,
     private val embeddingModel: EmbeddingModel
 ) {

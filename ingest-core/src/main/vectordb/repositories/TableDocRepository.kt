@@ -1,14 +1,15 @@
-package io.ybigta.text2sql.ingest.vectordb
+package io.ybigta.text2sql.ingest.vectordb.repositories
 
 import dev.langchain4j.data.embedding.Embedding
 import dev.langchain4j.model.embedding.EmbeddingModel
 import io.ybigta.text2sql.ingest.logic.schema_ingest.TableSchemaJson
+import io.ybigta.text2sql.ingest.vectordb.tables.TableDocTbl
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class TableDocRepository(
+internal class TableDocRepository(
     private val db: Database,
     private val embeddingModel: EmbeddingModel
 ) {
@@ -31,9 +32,4 @@ class TableDocRepository(
             .firstOrNull()
             ?.let { rw -> rw[TableDocTbl.schemaJson] }
     }
-
-    // fun findAll(): List<Pair<String, TableSchemaJson>> = transaction(db) {
-    //     TableDocTbl
-    //         .select(TableDocTbl.schema, TableDocTbl.schemaJson)
-    //         .map { rw -> Pair(rw[TableDocTbl.schema], rw[TableDocTbl.schemaJson]) }
 }

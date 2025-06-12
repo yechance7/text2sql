@@ -70,7 +70,7 @@ class IngestConfig(
     }
 }
 
-object LLMEndpointBuilder {
+internal object LLMEndpointBuilder {
     object SchemaMarkdownGeneration {
         fun buildSchemaMarkdownGenerationEndpoint(config: IngestConfig): SchemaMarkdownGenerationEndpoint = AiServices
             .builder(SchemaMarkdownGenerationEndpoint::class.java)
@@ -118,12 +118,6 @@ object LLMEndpointBuilder {
             .builder(DomainEntityMappingGenerationEndpoint::class.java)
             .chatModel(config.llmModels[config.config.llmEndPoints.domainEntityMappingIngest.domainEntityMappingDocGenerationEndpoint.modelName])
             .systemMessageProvider { _ -> config.config.llmEndPoints.domainEntityMappingIngest.domainEntityMappingDocGenerationEndpoint.systemPrompt }
-            .build()
-
-        fun buildDomainEntitiesExtractionEndpoint(config: IngestConfig): DomainEntitiesExtractionEndpoint = AiServices
-            .builder(DomainEntitiesExtractionEndpoint::class.java)
-            .chatModel(config.llmModels[config.config.llmEndPoints.domainEntityMappingIngest.domainEntitiesExtractionEndpoint.modelName])
-            .systemMessageProvider { _ -> config.config.llmEndPoints.domainEntityMappingIngest.domainEntitiesExtractionEndpoint.systemPrompt }
             .build()
     }
 }

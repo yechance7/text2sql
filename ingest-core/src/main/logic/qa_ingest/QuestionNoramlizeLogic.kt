@@ -8,13 +8,13 @@ import kotlinx.serialization.Serializable
 import org.slf4j.LoggerFactory
 
 @Serializable
-data class Qa(
+internal data class Qa(
     val question: String, // natural language
     val answer: String // SQL
 )
 
 @Serializable
-data class StructuredQa(
+internal data class StructuredQa(
     val question: String,
     val normalizedQuestion: String,
     val requestedEntities: String,
@@ -39,7 +39,7 @@ data class StructuredQa(
 
 private val logger = LoggerFactory.getLogger("ingress.ga-ingress.normalizeAndStructure")
 
-suspend fun normalizeAndStructureQuestionLogic(
+internal suspend fun normalizeAndStructureQuestionLogic(
     qa: Qa,
     questionNormalizeAndStructureEndpoint: QuestionNormalizeAndStructureEndpoint,
     questionMainClauseExtractionEndpoint: QuestionMainClauseExtractionEndpoint,
