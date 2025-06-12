@@ -13,16 +13,66 @@ if you didn't installed above them. i recommend you to install them by [sdkman](
 
 this command will create `ingest-cli-<version>.jar` executable file.
 
+
 ```bash
 git clone https://github.com/jsybf/text2sql.git
 mvn package
 ```
 
-# usage
+---
+
+# usage(ingest)
 
 - requirements
     - jvm (1.8 ~ 23)
     - [config yaml file](ingest_config.yaml.example)
+
+first you need to prepare config file. [config file template](ingest_config.yaml.example) is prepared.
+not modifing `systemPrompt` fields is suggested
+```yaml
+Resources:
+  qaJson: ./data/qa.json # path of QA-pair json file
+  schemaMarkdownDir: ./data/desc # path of dir to read/write table schema markdown doc
+
+# config vectordb
+PgVector:
+  jdbcUrl: jdbc:postgresql://localhost:5432/vectordb # jdbc url of postgres(pgvector extension should be installed)
+  userName: ???
+  password: ???
+  
+# list of llm models
+# currently only open ai model that supports json output is supported
+LLMModels:
+  - modelName: gpt-4o-mini 
+    apiKey: ???
+  - modelName: gpt-4.1-mini
+    apiKey: ???
+    
+# currently only open ai model is only supported
+EmbeddingModel:
+  modelName: text-embedding-ada-002 # vector size should be sync with postgres pgvector size
+  apiKey: ???
+  
+# specify llm-model and systemprompt for each llm call
+LLMEndPoints:
+  SchemaMarkdownGeneration:
+    SchemaMarkdownGenerationEndpoint:
+      modelName: gpt-4o-mini // one of modelName specified in LLMModels
+      systemPrompt: ???
+  SchemaIngest:
+    StrucutureSchemaDocEndpoint:
+      modelName: gpt-4.1-mini
+      systemPrompt: ???
+    TableEntitiesExtractionEndpoint:
+      modelName: gpt-4.1-mini
+      systemPrompt: ???
+  QaIngest:
+    QuestionNormalizeAndStructureEndpoint:
+      modelName: gpt-4.1-mini
+      systemPrompt:
+
+```
+
 
 ### schema doc generation
 read tables from database and generate table schema documentation(markdown).
