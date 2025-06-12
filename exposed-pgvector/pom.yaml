@@ -1,0 +1,30 @@
+modelVersion: 4.0.0
+
+parent:
+  groupId: io.ybigta
+  artifactId: text2sql
+  version: 0.0.1-alpha
+  relativePath: ../pom.yaml
+
+artifactId: exposed-pgvector
+packaging: jar
+
+dependencies:
+  - { groupId: ch.qos.logback, artifactId: logback-classic, version: '${dep.logback}' }
+  - { groupId: org.jetbrains.kotlinx, artifactId: kotlinx-serialization-json, version: '${dep.kotlinx-json}' }
+  - { groupId: org.jetbrains.exposed, artifactId: exposed-core, version: '${dep.exposed}' }
+  - { groupId: org.postgresql, artifactId: postgresql, version: '${dep.postgresql}' }
+
+build:
+  plugins:
+    - groupId: org.jetbrains.kotlin
+      artifactId: kotlin-maven-plugin
+      version: '${kotlin.version}'
+      extensions: true
+      configuration:
+        compilerPlugins:
+          - kotlinx-serialization
+      dependencies:
+        - groupId: org.jetbrains.kotlin
+          artifactId: kotlin-maven-serialization
+          version: '${kotlin.version}'

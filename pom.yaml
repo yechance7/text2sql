@@ -1,0 +1,46 @@
+modelVersion: 4.0.0
+
+groupId: io.ybigta
+artifactId: text2sql
+version: 0.0.1-alpha
+
+packaging: pom
+
+modules:
+  - ingest-core
+  - ingest-cli
+  - exposed-pgvector
+
+properties:
+  kotlin.version: 2.1.10
+  maven.compiler.target: 21
+  maven.compiler.source: 21
+  kotlin.compiler.incremental: true
+  # dependencies version
+  dep.junit: 4.13.1
+  dep.kaml: 0.77.1
+  dep.exposed: 0.61.0
+  dep.kotlinx-json: 1.8.1
+  dep.langchain4j: 1.0.1
+  dep.postgresql: 42.7.1
+  dep.logback: 1.4.14
+  dep.jackson-kotlin: 2.19.0
+  dep.clikt: 5.0.3
+
+dependencies:
+  - { groupId: org.jetbrains.kotlin, artifactId: kotlin-stdlib, version: '${kotlin.version}' }
+  - { groupId: org.jetbrains.kotlin, artifactId: kotlin-test-junit, version: '${kotlin.version}', scope: test }
+  - { groupId: junit, artifactId: junit, version: '${dep.junit}', scope: test }
+
+build:
+  sourceDirectory: src/main
+  testSourceDirectory: src/test
+  resources:
+    - { directory: src/main/resources }
+  testResources:
+    - { directory: src/test/resources }
+  plugins:
+    - groupId: org.jetbrains.kotlin
+      artifactId: kotlin-maven-plugin
+      version: '${kotlin.version}'
+      extensions: true
