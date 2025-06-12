@@ -12,7 +12,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
 import vectordb.QaEmbeddingRepository
@@ -45,6 +44,7 @@ class QaIngester(
             .readText()
             .let { Json.decodeFromString<List<Qa>>(it) }
 
+        var cnt = 0;
         channelFlow<Deferred<Pair<Qa, StructuredQa>>> {
             qaList.forEach { qa ->
                 delay(1.seconds)
@@ -60,10 +60,10 @@ class QaIngester(
             }
         }
             .map { it.await() }
-            .onEach { logger.info("received normalized qa") }
             .collectLatest { (qa, structuredQa) ->
                 val id = qaRepository.insertAndGetId(qa.question, qa.answer, structuredQa)
                 qaEmbeddingRepository.insertAllTypes(qa.question, qa.answer, structuredQa)
+                logger.info("[{}/{}] done!", ++cnt, qaList.size)
             }
     }
 }

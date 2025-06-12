@@ -40,10 +40,11 @@ class SchemaIngester(
                     .also { require(it.size == 3) { "schema-doc file name should be <schema_name>.<table_name>.md" } }
                     .let { Pair(it[0], it[1]) }
 
-                logger.info("got schema doc of  schema={} table={}", schemaName, tableName)
+                logger.info("got schema doc of schema={} table={}", schemaName, tableName)
                 Triple(schemaName, tableName, schemaDoc)
             }
 
+        var cnt = 0;
         channelFlow {
             schemaDocs.forEach { (schemaName, tableName, schemaDoc) ->
                 delay(2.seconds)
@@ -51,7 +52,8 @@ class SchemaIngester(
                     schemaIngrestLogic(
                         schemaDoc,
                         structureSchemaDocEndPoint,
-                        tableEntitiesExtractionEndpoint
+                        tableEntitiesExtractionEndpoint,
+                        tableName
                     ).let { Pair(schemaName, it) }
                 }
                     .let { send(it) }
@@ -61,6 +63,7 @@ class SchemaIngester(
             .collect { (schemaname, tableSchema) ->
                 val id = schemaDocRepository.insertAndGetId(schemaname, tableSchema.name, tableSchema)
                 tableDocEmbeddingRepository.insertAllCategories(id, tableSchema)
+                logger.info("[{}/{}] done!", ++cnt, schemaDocs.size)
             }
     }
 }

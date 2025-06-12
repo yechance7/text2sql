@@ -1,11 +1,11 @@
 package vectordb
 
+import io.ybigta.text2sql.exposed.pgvector.pgVector
 import io.ybigta.text2sql.ingest.logic.qa_ingest.DomainEntitiyMapping
 import io.ybigta.text2sql.ingest.logic.qa_ingest.StructuredQa
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.json.jsonb
-import pgVector
 
 object QaTbl : IntIdTable("qa", "qa_id") {
     val question = text("question")

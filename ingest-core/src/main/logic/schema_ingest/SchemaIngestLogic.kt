@@ -6,6 +6,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
 
 
@@ -60,15 +61,16 @@ suspend fun schemaIngrestLogic(
     schemaMarkdown: String,
     structureMkEndpoint: StructureSchemaDocEndPoint,
     tableEntitiesExtractionEndpoint: TableEntitiesExtractionEndpoint,
+    tableName: String, // for logging
     requestNum: Int = 7,
     frequencyStrong: Int = 3,
     frequencyWeek: Int = 2,
 ): TableSchemaJson = coroutineScope {
-    logger.debug("reqeust for table schema makrdown doc to json")
+    logger.debug("reqeust for makrdown doc to json (table={}) ", tableName)
     val tableSchemaJsonWithoutEntities: TableSchemaJson = structureMkEndpoint.request(schemaMarkdown)
-    logger.debug("${tableSchemaJsonWithoutEntities}")
+    logger.trace("(table={}) \n{}", Json { prettyPrint = true }.encodeToString(tableSchemaJsonWithoutEntities))
 
-    logger.debug("reqeust for entities extraction. will request ${requestNum} times")
+    logger.debug("reqeust for entities extraction. will request {} times (table={}) ", tableName, requestNum)
     // request multiple sam llm request then select most frequent
     val extractedEntitiesList = (1..requestNum)
         .map { async { tableEntitiesExtractionEndpoint.request(tableSchemaJsonWithoutEntities) } }
@@ -82,7 +84,6 @@ suspend fun schemaIngrestLogic(
     val strongEntties = entityFrequecies.filterValues { frequency -> frequencyStrong < frequency }.keys.toList()
     val weekEntities = entityFrequecies.filterValues { frequency -> frequencyWeek < frequency }.keys.toList()
 
-    logger.debug("finished processing table schema")
     return@coroutineScope tableSchemaJsonWithoutEntities.copy(
         strongEntities = strongEntties,
         weekEntities = weekEntities

@@ -1,0 +1,41 @@
+modelVersion: 4.0.0
+
+parent:
+  groupId: io.ybigta
+  artifactId: text2sql
+  version: 0.0.0
+  relativePath: ../pom.yaml
+
+artifactId: ingest-cli
+packaging: jar
+
+properties:
+  mainClass: 'io.ybigta.text2sql.ingest.cli.MainKt'
+
+dependencies:
+  - { groupId: io.ybigta, artifactId: ingest-core, version: '${project.version}' }
+  - { groupId: com.github.ajalt.clikt, artifactId: clikt-jvm, version: '${dep.clikt}' }
+  - { groupId: org.jetbrains.exposed, artifactId: exposed-core, version: '${dep.exposed}' }
+  - { groupId: org.jetbrains.exposed, artifactId: exposed-jdbc, version: '${dep.exposed}' }
+  - { groupId: org.postgresql, artifactId: postgresql, version: '${dep.postgresql}' }
+
+build:
+  plugins:
+    - groupId: org.apache.maven.plugins
+      artifactId: maven-assembly-plugin
+      version: 2.6
+      configuration:
+        finalName: ${project.artifactId}-${project.version}
+        outputDirectory: ${project.parent.basedir}
+        appendAssemblyId: false
+        descriptorRefs:
+          - jar-with-dependencies
+        archive:
+          manifest:
+            addClasspath: true
+            mainClass: ${mainClass}
+      executions:
+        - id: assemble-all
+          phase: package
+          goals:
+            - single
