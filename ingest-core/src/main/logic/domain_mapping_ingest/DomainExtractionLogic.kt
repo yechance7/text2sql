@@ -16,7 +16,7 @@ internal data class TableSelection(
 )
 
 @Serializable
-internal data class DomainEntitiyMapping(
+data class DomainEntitiyMapping(
     val entityName: String,
     val entityConceptualRole: String,
     val sourceTables: Set<String>,

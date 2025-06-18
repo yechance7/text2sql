@@ -69,7 +69,7 @@ class QaIngester(
             }
         }
             .map { it.await() }
-            .collectLatest { (qa, structuredQa) ->
+            .collect { (qa, structuredQa) ->
                 val id = qaRepository.insertAndGetId(qa.question, qa.answer, structuredQa)
                 qaEmbeddingRepository.insertAllTypes(id, structuredQa)
                 logger.info("[{}/{}] done!", cnt.addAndGet(1), qaList.size)

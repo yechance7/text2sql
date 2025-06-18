@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.map
 import org.slf4j.LoggerFactory
 import java.nio.file.Path
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.pathString
 import kotlin.io.path.readText
@@ -22,7 +23,7 @@ import kotlin.time.Duration.Companion.seconds
  */
 class SchemaIngester(
     private val ingestConfig: IngestConfig,
-    private val interval: Duration = 2.seconds
+    private val interval: Duration = 4.seconds
 ) {
     private val schemaDocDir: Path = ingestConfig.config.resources.schemaMarkdownDir.toAbsolutePath()
 
@@ -49,7 +50,7 @@ class SchemaIngester(
                 Triple(schemaName, tableName, schemaDoc)
             }
 
-        var cnt = 0;
+        var cnt = AtomicInteger(0)
         channelFlow {
             schemaDocs.forEach { (schemaName, tableName, schemaDoc) ->
                 delay(interval)
@@ -68,7 +69,7 @@ class SchemaIngester(
             .collect { (schemaname, tableSchema) ->
                 val id = schemaDocRepository.insertAndGetId(schemaname, tableSchema.name, tableSchema)
                 tableDocEmbeddingRepository.insertAllCategories(id, tableSchema)
-                logger.info("[{}/{}] done!", ++cnt, schemaDocs.size)
+                logger.info("[{}/{}] done!", cnt.addAndGet(1), schemaDocs.size)
             }
     }
 }

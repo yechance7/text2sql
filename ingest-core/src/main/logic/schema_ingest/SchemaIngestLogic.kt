@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory
 private val logger = LoggerFactory.getLogger("ingress.schema-ingress")
 
 @Serializable
-internal data class TableSchemaJson(
+data class TableSchemaJson(
     val name: String,
     val purpose: String,
     val summary: String,
@@ -70,7 +70,7 @@ internal suspend fun schemaIngrestLogic(
     val tableSchemaJsonWithoutEntities: TableSchemaJson = structureMkEndpoint.request(schemaMarkdown)
     logger.trace("(table={}) \n{}", Json { prettyPrint = true }.encodeToString(tableSchemaJsonWithoutEntities))
 
-    logger.debug("reqeust for entities extraction. will request {} times (table={}) ", tableName, requestNum)
+    logger.debug("reqeust for entities extraction. will request {} times (table={}) ", requestNum, tableName)
     // request multiple sam llm request then select most frequent
     val extractedEntitiesList = (1..requestNum)
         .map { async { tableEntitiesExtractionEndpoint.request(tableSchemaJsonWithoutEntities) } }

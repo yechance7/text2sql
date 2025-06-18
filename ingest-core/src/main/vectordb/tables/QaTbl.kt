@@ -5,7 +5,7 @@ import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.json.jsonb
 
-internal object QaTbl : IntIdTable("qa", "qa_id") {
+object QaTbl : IntIdTable("qa", "qa_id") {
     val question = text("question")
     val answer = text("answer")
     val structuredQa = jsonb<StructuredQa>("structured_qa", Json)

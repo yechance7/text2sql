@@ -13,4 +13,4 @@ class CosineDistanceOp<T : Number>(
     columnType: IColumnType<T>
 ) : CustomOperator<T>("<=>", columnType, left, right)
 
-infix fun ExpressionWithColumnType<FloatArray>.cosineDistance(t: FloatArray) = CosineDistanceOp(this, wrap(t), FloatColumnType())
+infix fun ExpressionWithColumnType<FloatArray>.cosDist(t: FloatArray) = CosineDistanceOp(this, wrap(t), FloatColumnType())

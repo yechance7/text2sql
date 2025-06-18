@@ -14,7 +14,7 @@ internal data class Qa(
 )
 
 @Serializable
-internal data class StructuredQa(
+data class StructuredQa(
     val question: String,
     val normalizedQuestion: String,
     val requestedEntities: String,

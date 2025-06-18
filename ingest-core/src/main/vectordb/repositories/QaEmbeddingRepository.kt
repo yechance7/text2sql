@@ -20,7 +20,7 @@ internal class QaEmbeddingRepository(
             {
                 QaEmbeddingTbl.insert {
                     it[QaEmbeddingTbl.embedding] = questionEmbedding
-                    it[QaEmbeddingTbl.embeddingTarget] = QaEmbeddingTbl.EmbeddingTarget.QUESTION
+                    it[QaEmbeddingTbl.embeddingTarget] = QaEmbeddingTbl.EmbeddingType.QUESTION
                     it[QaEmbeddingTbl.data] = structuredQa.question
                     it[QaEmbeddingTbl.qaId] = qaId
                 }
@@ -32,7 +32,7 @@ internal class QaEmbeddingRepository(
             {
                 QaEmbeddingTbl.insert {
                     it[QaEmbeddingTbl.embedding] = requestedEntitiesEmbedding
-                    it[QaEmbeddingTbl.embeddingTarget] = QaEmbeddingTbl.EmbeddingTarget.REQUESTED_ENTITIES
+                    it[QaEmbeddingTbl.embeddingTarget] = QaEmbeddingTbl.EmbeddingType.REQUESTED_ENTITIES
                     it[QaEmbeddingTbl.data] = structuredQa.requestedEntities
                     it[QaEmbeddingTbl.qaId] = qaId
                 }
@@ -44,7 +44,7 @@ internal class QaEmbeddingRepository(
             {
                 QaEmbeddingTbl.insert {
                     it[QaEmbeddingTbl.embedding] = normalizedQuestionEmbedding
-                    it[QaEmbeddingTbl.embeddingTarget] = QaEmbeddingTbl.EmbeddingTarget.NORMALIZED_QUESTION
+                    it[QaEmbeddingTbl.embeddingTarget] = QaEmbeddingTbl.EmbeddingType.NORMALIZED_QUESTION
                     it[QaEmbeddingTbl.data] = structuredQa.normalizedQuestion
                     it[QaEmbeddingTbl.qaId] = qaId
                 }
