@@ -8,8 +8,9 @@ import io.ybigta.text2sql.infer.core.logic.qa_retrieve.QaRetrieveRepository
 import io.ybigta.text2sql.infer.core.logic.qa_retrieve.QaRetrieveResult
 import io.ybigta.text2sql.infer.core.logic.table_retrieve.TblSimiRepository
 import io.ybigta.text2sql.infer.core.logic.table_retrieve.TblSimiRetrieveLogic
-import io.ybigta.text2sql.ingest.TableDesc
+import io.ybigta.text2sql.infer.core.logic.table_retrieve.TblSimiRetrieveResult
 import kotlinx.coroutines.*
+import kotlinx.serialization.json.*
 import java.nio.file.Path
 
 /**
@@ -20,26 +21,23 @@ class Inferer(
     private val qaRetrieveLogic: QaRetrieveLogic,
     private val sqlGenerateLogic: SqlGenerateLogic,
 ) {
-    suspend fun infer(question: Question): String = coroutineScope {
+    suspend fun infer(question: Question): InferResult = coroutineScope {
 
-        val retrievedTblList: Deferred<List<TableDesc>> = async { tblSimiRetrieveLogic.retrieve(question) }
+        val retrievedTblList: Deferred<List<TblSimiRetrieveResult>> = async { tblSimiRetrieveLogic.retrieve(question) }
         val retrievedQaList: Deferred<List<QaRetrieveResult>> = async { qaRetrieveLogic.retrieve(question) }
-
-        retrievedQaList
-            .await()
-            .onEach { println(it.qa.question) }
-
-        retrievedTblList
-            .await()
-            .onEach { println(it) }
 
         val generatedSql = sqlGenerateLogic.generateCode(
             question,
-            retrievedTblList.await(),
+            retrievedTblList.await().map { it.tableDesc },
             retrievedQaList.await(),
         )
 
-        return@coroutineScope generatedSql
+        return@coroutineScope InferResult(
+            question = question.question,
+            sql = generatedSql,
+            tblRetrivedResult = retrievedTblList.await(),
+            qaRetrieveResult = retrievedQaList.await()
+        )
     }
 
     companion object {
@@ -56,9 +54,9 @@ class Inferer(
                     embeddingModel = config.embeddingModel
                 ),
                 0.01F,
-                0.01F,
-                0.03F,
-                0.03F,
+                0.13F,
+                0.15F,
+                0.15F,
             ),
             SqlGenerateLogic(
                 LLMEndpointBuilder.SqlGeneration.buildQuestionEntityExtractionEndpoint(config),
@@ -68,6 +66,13 @@ class Inferer(
     }
 }
 
+data class InferResult(
+    val question: String,
+    val sql: String,
+    val tblRetrivedResult: List<TblSimiRetrieveResult>,
+    val qaRetrieveResult: List<QaRetrieveResult>
+)
+
 fun main() {
     val config = Path
         .of("./.docs/infer_config.yaml")
@@ -76,8 +81,34 @@ fun main() {
     val inferer = Inferer.fromConfig(config)
 
     runBlocking(Dispatchers.IO) {
-        val q = Question.fromConfig("개선대책담당자중 탈주한 사람을 찾아줘", config)
-        val generatedSql = inferer.infer(q)
-        println(generatedSql)
+        val q = Question.fromConfig("개선대책담당자중 가장 많은 개선대책을 담당한 사람을 찾아줘", config)
+        val result = inferer.infer(q)
+
+        val resultJson = buildJsonObject {
+            put("question", result.question)
+            put("sql", result.sql)
+            putJsonArray("retrieved_qa") {
+                result.qaRetrieveResult.forEach { qa ->
+                    addJsonObject {
+                        put("distance", qa.dist)
+                        put("question", qa.qa.question)
+                    }
+                }
+            }
+            putJsonArray("retrieved_tbl") {
+                result.tblRetrivedResult.sortedBy { it.distance }.forEach { tbl ->
+                    addJsonObject {
+                        put("distance", tbl.distance)
+                        put("embedding_category", tbl.embeddingCategory.name)
+                        put("table", tbl.tableDesc.tableName.tableName)
+                    }
+                }
+            }
+        }
+
+        Json { prettyPrint = true }
+            .encodeToString(resultJson)
+            .also { println(it) }
+
     }
 }

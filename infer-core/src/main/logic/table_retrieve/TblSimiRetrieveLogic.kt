@@ -17,15 +17,15 @@ import org.slf4j.LoggerFactory
 
 class TblSimiRetrieveLogic(
     private val tblSimiRepository: TblSimiRepository,
-    private val resultN: Int = 5
+    private val resultN: Int = 4
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    suspend fun retrieve(question: Question): List<TableDesc> = coroutineScope {
+    suspend fun retrieve(question: Question): List<TblSimiRetrieveResult> = coroutineScope {
         return@coroutineScope retrieveBySimi(question)
     }
 
-    private suspend fun retrieveBySimi(question: Question): List<TableDesc> = coroutineScope {
+    private suspend fun retrieveBySimi(question: Question): List<TblSimiRetrieveResult> = coroutineScope {
 
         val retrieveParamList = listOf(
             TblSimiRetrieveParam(
@@ -67,17 +67,13 @@ class TblSimiRetrieveLogic(
             .map { it.await() }
             .flatten()
 
-        val retrievedTables = retrievedResult
-            .map { it.tableDesc }
-            .distinct()
 
-        return@coroutineScope retrievedTables
+        return@coroutineScope retrievedResult
     }
 }
 
 
 data class TblSimiRetrieveResult(
-    val tableName: String,
     val tableDesc: TableDesc, // makrdown doc
     val embeddingCategory: EmbeddingCategory,
     val distance: Float
@@ -105,14 +101,13 @@ class TblSimiRepository(
 
         val query = TableDocTbl
             .innerJoin(TableDocEmbddingTbl)
-            .select(TableDocTbl.table, TableDocTbl.schemaJson, distance, TableDocEmbddingTbl.embeddingCategory)
+            .select(TableDocTbl.schemaJson, distance, TableDocEmbddingTbl.embeddingCategory)
             .andWhere { TableDocEmbddingTbl.embeddingCategory inList param.filterCondition }
             .orderBy(distance)
             .limit(param.resultN)
 
         query.map {
             TblSimiRetrieveResult(
-                tableName = it[TableDocTbl.table],
                 tableDesc = it[TableDocTbl.schemaJson],
                 embeddingCategory = it[TableDocEmbddingTbl.embeddingCategory],
                 distance = it[distance]

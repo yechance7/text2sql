@@ -9,6 +9,7 @@ import io.ybigta.text2sql.ingest.vectordb.tables.QaEmbeddingTbl
 import io.ybigta.text2sql.ingest.vectordb.tables.QaEmbeddingTbl.EmbeddingType
 import io.ybigta.text2sql.ingest.vectordb.tables.QaTbl
 import io.ybigta.text2sql.ingest.vectordb.tables.TableDocTbl
+import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.alias
 import org.jetbrains.exposed.sql.andWhere
@@ -65,6 +66,7 @@ class QaRetrieveRepository(
     }
 }
 
+@Serializable
 data class QaRetrieveResult(
     val qa: StructuredQa,
     val dist: Float,
