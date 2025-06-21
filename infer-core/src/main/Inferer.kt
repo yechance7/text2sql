@@ -35,8 +35,8 @@ class Inferer(
         return@coroutineScope InferResult(
             question = question.question,
             sql = generatedSql,
-            tblRetrivedResult = retrievedTblList.await(),
-            qaRetrieveResult = retrievedQaList.await()
+            tblRetrivedResults = retrievedTblList.await(),
+            qaRetrieveResults = retrievedQaList.await()
         )
     }
 
@@ -69,8 +69,8 @@ class Inferer(
 data class InferResult(
     val question: String,
     val sql: String,
-    val tblRetrivedResult: List<TblSimiRetrieveResult>,
-    val qaRetrieveResult: List<QaRetrieveResult>
+    val tblRetrivedResults: List<TblSimiRetrieveResult>,
+    val qaRetrieveResults: List<QaRetrieveResult>
 )
 
 fun main() {
@@ -88,7 +88,7 @@ fun main() {
             put("question", result.question)
             put("sql", result.sql)
             putJsonArray("retrieved_qa") {
-                result.qaRetrieveResult.forEach { qa ->
+                result.qaRetrieveResults.forEach { qa ->
                     addJsonObject {
                         put("distance", qa.dist)
                         put("question", qa.qa.question)
@@ -96,7 +96,7 @@ fun main() {
                 }
             }
             putJsonArray("retrieved_tbl") {
-                result.tblRetrivedResult.sortedBy { it.distance }.forEach { tbl ->
+                result.tblRetrivedResults.sortedBy { it.distance }.forEach { tbl ->
                     addJsonObject {
                         put("distance", tbl.distance)
                         put("embedding_category", tbl.embeddingCategory.name)

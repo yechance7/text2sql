@@ -9,12 +9,17 @@ parent:
 artifactId: infer-server
 packaging: jar
 
-properties: 'io.ybigta.text2sql.infer.server.MainKt'
+properties:
+  mainClass: 'io.ybigta.text2sql.infer.server.MainKt'
 
 dependencies:
+  - { groupId: io.ybigta, artifactId: infer-core, version: '${project.version}' }
+  - { groupId: ch.qos.logback, artifactId: logback-classic, version: '${dep.logback}' }
+  - { groupId: org.jetbrains.kotlinx, artifactId: kotlinx-coroutines-core, version: '1.6.4' }
   - { groupId: io.ktor, artifactId: ktor-server-core-jvm, version: '${dep.ktor}' }
   - { groupId: io.ktor, artifactId: ktor-server-netty-jvm, version: '${dep.ktor}' }
-  - { groupId: ch.qos.logback, artifactId: logback-classic, version: '${dep.logback}' }
+  - { groupId: io.ktor, artifactId: ktor-server-content-negotiation-jvm, version: '${dep.ktor}' }
+  - { groupId: io.ktor, artifactId: ktor-serialization-kotlinx-json-jvm, version: '${dep.ktor}' }
   - { groupId: io.ktor, artifactId: ktor-server-test-host-jvm, version: '${dep.ktor}', scope: test }
   - { groupId: org.jetbrains.kotlinx, artifactId: kotlinx-coroutines-debug, version: '1.6.4', scope: test }
 
@@ -38,3 +43,14 @@ build:
           phase: package
           goals:
             - single
+    - groupId: org.jetbrains.kotlin
+      artifactId: kotlin-maven-plugin
+      version: '${kotlin.version}'
+      extensions: true
+      configuration:
+        compilerPlugins:
+          - kotlinx-serialization
+      dependencies:
+        - groupId: org.jetbrains.kotlin
+          artifactId: kotlin-maven-serialization
+          version: '${kotlin.version}'

@@ -20,7 +20,7 @@ class QaRetrieveRepository(
     private val db: Database,
     private val embeddingModel: EmbeddingModel,
 ) {
-    fun retrieve(queryText: String, maxDist: Float, embeddingTypes: List<EmbeddingType>): List<QaRetrieveResult> = transaction(db) {
+    fun retrieve(queryText: String, maxDist: Float, embeddingTypes: List<EmbeddingType>, serachLevel: Int): List<QaRetrieveResult> = transaction(db) {
         val nomarliedQEmbedding = embeddingModel.embed(queryText).content().vector()
         val cosDist = (QaEmbeddingTbl.embedding cosDist nomarliedQEmbedding).alias("cos_dist")
 
@@ -53,7 +53,7 @@ class QaRetrieveRepository(
                     .map { schemaDotTableNameFormat.find(it)?.groupValues?.get(1) ?: it }
 
                 val sourceTblDocs = sourceTblNames.map { name -> findDocByTableName(name)!! }
-                QaRetrieveResult(qaDto.structuredQa, dist, sourceTblDocs)
+                QaRetrieveResult(qaDto.structuredQa, dist, sourceTblDocs, serachLevel)
             }
     }
 
@@ -70,7 +70,8 @@ class QaRetrieveRepository(
 data class QaRetrieveResult(
     val qa: StructuredQa,
     val dist: Float,
-    val sourceTables: List<TableDesc>
+    val sourceTables: List<TableDesc>,
+    val searchLevel: Int
 )
 
 class QaRetrieveLogic(
@@ -106,7 +107,8 @@ class QaRetrieveLogic(
     private suspend fun retrieveLevel2(question: Question): List<QaRetrieveResult> = qaRetrieveRepo.retrieve(
         question.normalizedQ.await(),
         level2MaxDist,
-        listOf(EmbeddingType.QUESTION, EmbeddingType.NORMALIZED_QUESTION)
+        listOf(EmbeddingType.QUESTION, EmbeddingType.NORMALIZED_QUESTION),
+        2
     )
 
     /**
@@ -116,12 +118,14 @@ class QaRetrieveLogic(
         qaRetrieveRepo.retrieve(
             question.normalizedQ.await(),
             level3MaxDist,
-            listOf(EmbeddingType.QUESTION, EmbeddingType.NORMALIZED_QUESTION, EmbeddingType.VARIATION)
+            listOf(EmbeddingType.QUESTION, EmbeddingType.NORMALIZED_QUESTION, EmbeddingType.VARIATION),
+            3
         ),
         qaRetrieveRepo.retrieve(
             question.mainClause.await(),
             level3MaxDist,
-            listOf(EmbeddingType.QUESTION, EmbeddingType.NORMALIZED_QUESTION, EmbeddingType.VARIATION)
+            listOf(EmbeddingType.QUESTION, EmbeddingType.NORMALIZED_QUESTION, EmbeddingType.VARIATION),
+            3
         )
     )
         .flatten()
@@ -134,12 +138,14 @@ class QaRetrieveLogic(
         qaRetrieveRepo.retrieve(
             question.normalizedQ.await(),
             level4MaxDist,
-            listOf(EmbeddingType.QUESTION, EmbeddingType.NORMALIZED_QUESTION, EmbeddingType.VARIATION)
+            listOf(EmbeddingType.QUESTION, EmbeddingType.NORMALIZED_QUESTION, EmbeddingType.VARIATION),
+            4
         ),
         qaRetrieveRepo.retrieve(
             question.mainClause.await(),
             level4MaxDist,
-            listOf(EmbeddingType.QUESTION, EmbeddingType.NORMALIZED_QUESTION, EmbeddingType.VARIATION)
+            listOf(EmbeddingType.QUESTION, EmbeddingType.NORMALIZED_QUESTION, EmbeddingType.VARIATION),
+            4
         )
     )
         .flatten()

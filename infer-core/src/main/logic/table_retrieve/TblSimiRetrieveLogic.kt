@@ -66,6 +66,7 @@ class TblSimiRetrieveLogic(
             .map { param -> async { tblSimiRepository.findByParam(param) } }
             .map { it.await() }
             .flatten()
+            .distinctBy { it.tableDesc.tableName }
 
 
         return@coroutineScope retrievedResult
