@@ -14,6 +14,7 @@ import io.ybigta.text2sql.ingest.config.IngestConfig
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.runBlocking
@@ -53,14 +54,18 @@ internal class SchemaIngestCmd : CliktCommand("ingest-schema") {
 
         runBlocking(dispatcher) {
             readTableDescFiles(tableDescDir)
-                .channelFlowMapAsync(2.seconds) { tableDesc -> schemaDocGenerator.ingest(tableDesc) }
+                .channelFlowMapAsync(2.seconds) { tableDesc ->
+                    schemaDocGenerator.ingest(tableDesc)
+                    logger.info("inserted (schema={}, table={})", tableDesc.tableName.schemaName, tableDesc.tableName.tableName)
+                }
+                .collect()
         }
     }
 
 
     private fun readTableDescFiles(baseDir: Path): List<TableDesc> {
         return baseDir
-            .listDirectoryEntries("*.(yml|json)")
+            .listDirectoryEntries("*.{yml,json,yaml}")
             .map { it.normalize() }
             .map { path ->
                 val tableDocStr = path.readText()
@@ -71,6 +76,7 @@ internal class SchemaIngestCmd : CliktCommand("ingest-schema") {
                     path.pathString.endsWith("json") -> prettyJson
                     else -> throw IllegalStateException("only yaml, json file is supported for table-desc file")
                 }
+
 
                 encoder
                     .decodeFromString<TableDesc>(tableDocStr)
