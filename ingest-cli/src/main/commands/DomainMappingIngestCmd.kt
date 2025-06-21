@@ -15,8 +15,8 @@ internal class DomainMappingIngestCmd : CliktCommand("ingest-domain-mapping") {
 
     override fun run() {
         val config = IngestConfig.fromConfigFile(configFile)
-        val domainIngester = DomainMappingIngester(config)
-        val dispatcher = newFixedThreadPoolContext(50, "worker")
+        val domainIngester = DomainMappingIngester.fromConfig(config)
+        val dispatcher = newFixedThreadPoolContext(30, "worker")
 
 
         // transaction(config.pgvector) {

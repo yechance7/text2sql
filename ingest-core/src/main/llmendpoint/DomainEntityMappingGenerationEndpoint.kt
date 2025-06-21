@@ -2,10 +2,10 @@ package io.ybigta.text2sql.ingest.llmendpoint
 
 import dev.langchain4j.service.UserMessage
 import dev.langchain4j.service.V
-import io.ybigta.text2sql.ingest.logic.domain_mapping_ingest.DomainEntitiyMapping
-import io.ybigta.text2sql.ingest.logic.domain_mapping_ingest.TableSelection
+import io.ybigta.text2sql.ingest.DomainEntitiyMapping
+import io.ybigta.text2sql.ingest.TableSelection
 
-internal interface DomainEntityMappingGenerationEndpoint {
+interface DomainEntityMappingGenerationEndpoint {
     /**
      * called when ingesting domain entity mapping
      */

@@ -3,7 +3,7 @@ package io.ybigta.text2sql.infer.core.logic.table_retrieve
 import dev.langchain4j.model.embedding.EmbeddingModel
 import io.ybigta.text2sql.exposed.pgvector.cosDist
 import io.ybigta.text2sql.infer.core.Question
-import io.ybigta.text2sql.ingest.logic.schema_ingest.TableSchemaJson
+import io.ybigta.text2sql.ingest.TableDesc
 import io.ybigta.text2sql.ingest.vectordb.tables.TableDocEmbddingTbl
 import io.ybigta.text2sql.ingest.vectordb.tables.TableDocEmbddingTbl.EmbeddingCategory
 import io.ybigta.text2sql.ingest.vectordb.tables.TableDocTbl
@@ -21,11 +21,11 @@ class TblSimiRetrieveLogic(
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    suspend fun retrieve(question: Question): List<TableSchemaJson> = coroutineScope {
+    suspend fun retrieve(question: Question): List<TableDesc> = coroutineScope {
         return@coroutineScope retrieveBySimi(question)
     }
 
-    private suspend fun retrieveBySimi(question: Question): List<TableSchemaJson> = coroutineScope {
+    private suspend fun retrieveBySimi(question: Question): List<TableDesc> = coroutineScope {
 
         val retrieveParamList = listOf(
             TblSimiRetrieveParam(
@@ -68,7 +68,7 @@ class TblSimiRetrieveLogic(
             .flatten()
 
         val retrievedTables = retrievedResult
-            .map { it.tableSchemaJson }
+            .map { it.tableDesc }
             .distinct()
 
         return@coroutineScope retrievedTables
@@ -78,7 +78,7 @@ class TblSimiRetrieveLogic(
 
 data class TblSimiRetrieveResult(
     val tableName: String,
-    val tableSchemaJson: TableSchemaJson, // makrdown doc
+    val tableDesc: TableDesc, // makrdown doc
     val embeddingCategory: EmbeddingCategory,
     val distance: Float
 )
@@ -113,7 +113,7 @@ class TblSimiRepository(
         query.map {
             TblSimiRetrieveResult(
                 tableName = it[TableDocTbl.table],
-                tableSchemaJson = it[TableDocTbl.schemaJson],
+                tableDesc = it[TableDocTbl.schemaJson],
                 embeddingCategory = it[TableDocEmbddingTbl.embeddingCategory],
                 distance = it[distance]
             )

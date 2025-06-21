@@ -56,11 +56,8 @@ data class IngestConfigFileSpec(
 
     @Serializable
     data class LLMEndPointsSpec(
-        @SerialName("SchemaMarkdownGeneration")
-        val schemaMarkdownGeneration: SchemaMarkdownGenerationSpec,
-
-        @SerialName("SchemaIngest")
-        val schemaIngest: SchemaIngestSpec,
+        @SerialName("TableDescGeneration")
+        val tableDescGeneration: SchemaMarkdownGenerationSpec,
 
         @SerialName("QaIngest")
         val qaIngest: QaIngest,
@@ -78,11 +75,8 @@ data class IngestConfigFileSpec(
         @Serializable
         data class SchemaMarkdownGenerationSpec(
             @SerialName("SchemaMarkdownGenerationEndpoint")
-            val schemaMarkdownGenerationEndpoint: LLMEndPointSpec
-        )
+            val schemaMarkdownGenerationEndpoint: LLMEndPointSpec,
 
-        @Serializable
-        data class SchemaIngestSpec(
             @SerialName("StrucutureSchemaDocEndpoint")
             val strucutureSchemaDocEndpoint: LLMEndPointSpec,
 
@@ -102,8 +96,6 @@ data class IngestConfigFileSpec(
         data class DomainEntityMappingIngest(
             @SerialName("SourceTableSelectionEndpoint")
             val sourceTableSelectionEndpoint: LLMEndPointSpec,
-            @SerialName("DomainEntitiesExtractionEndpoint")
-            val domainEntitiesExtractionEndpoint: LLMEndPointSpec,
             @SerialName("DomainEntityMappingDocGenerationEndpoint")
             val domainEntityMappingDocGenerationEndpoint: LLMEndPointSpec
         )

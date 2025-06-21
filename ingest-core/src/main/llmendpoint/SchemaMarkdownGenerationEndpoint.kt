@@ -1,9 +1,9 @@
 package io.ybigta.text2sql.ingest.llmendpoint
 
-import io.ybigta.text2sql.ingest.logic.doc_gene.TableSchema
+import io.ybigta.text2sql.ingest.TableSchema
 import kotlinx.serialization.json.JsonObject
 
-internal interface SchemaMarkdownGenerationEndpoint {
+interface SchemaMarkdownGenerationEndpoint {
     /**
      * auto-generate markdown schema documentation based on [tableSchema]
      *

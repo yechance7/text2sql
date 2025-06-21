@@ -74,22 +74,22 @@ internal object LLMEndpointBuilder {
     object SchemaMarkdownGeneration {
         fun buildSchemaMarkdownGenerationEndpoint(config: IngestConfig): SchemaMarkdownGenerationEndpoint = AiServices
             .builder(SchemaMarkdownGenerationEndpoint::class.java)
-            .chatModel(config.llmModels[config.config.llmEndPoints.schemaMarkdownGeneration.schemaMarkdownGenerationEndpoint.modelName])
-            .systemMessageProvider { _ -> config.config.llmEndPoints.schemaMarkdownGeneration.schemaMarkdownGenerationEndpoint.systemPrompt }
+            .chatModel(config.llmModels[config.config.llmEndPoints.tableDescGeneration.schemaMarkdownGenerationEndpoint.modelName])
+            .systemMessageProvider { _ -> config.config.llmEndPoints.tableDescGeneration.schemaMarkdownGenerationEndpoint.systemPrompt }
             .build()
     }
 
     object SchemaIngest {
         fun buildStrucutureSchemaDocEndpoint(config: IngestConfig): StructureSchemaDocEndPoint = AiServices
             .builder(StructureSchemaDocEndPoint::class.java)
-            .chatModel(config.llmModels[config.config.llmEndPoints.schemaIngest.strucutureSchemaDocEndpoint.modelName])
-            .systemMessageProvider { _ -> config.config.llmEndPoints.schemaIngest.strucutureSchemaDocEndpoint.systemPrompt }
+            .chatModel(config.llmModels[config.config.llmEndPoints.tableDescGeneration.strucutureSchemaDocEndpoint.modelName])
+            .systemMessageProvider { _ -> config.config.llmEndPoints.tableDescGeneration.strucutureSchemaDocEndpoint.systemPrompt }
             .build()
 
         fun buildTableEntitiesExtractionEndpoint(config: IngestConfig): TableEntitiesExtractionEndpoint = AiServices
             .builder(TableEntitiesExtractionEndpoint::class.java)
-            .chatModel(config.llmModels[config.config.llmEndPoints.schemaIngest.tableEntitiesExtractionEndpoint.modelName])
-            .systemMessageProvider { _ -> config.config.llmEndPoints.schemaIngest.tableEntitiesExtractionEndpoint.systemPrompt }
+            .chatModel(config.llmModels[config.config.llmEndPoints.tableDescGeneration.tableEntitiesExtractionEndpoint.modelName])
+            .systemMessageProvider { _ -> config.config.llmEndPoints.tableDescGeneration.tableEntitiesExtractionEndpoint.systemPrompt }
             .build()
     }
 

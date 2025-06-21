@@ -1,75 +1,72 @@
 package io.ybigta.text2sql.ingest
 
 import io.ybigta.text2sql.ingest.config.IngestConfig
-import io.ybigta.text2sql.ingest.config.LLMEndpointBuilder
-import io.ybigta.text2sql.ingest.logic.schema_ingest.schemaIngrestLogic
 import io.ybigta.text2sql.ingest.vectordb.repositories.TableDocEmbeddingRepository
 import io.ybigta.text2sql.ingest.vectordb.repositories.TableDocRepository
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.serialization.Serializable
 import org.slf4j.LoggerFactory
-import java.nio.file.Path
-import java.util.concurrent.atomic.AtomicInteger
-import kotlin.io.path.listDirectoryEntries
-import kotlin.io.path.pathString
-import kotlin.io.path.readText
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
 
 /**
  * read table information from makrdown documentations then insert into vectordb.
  */
 class SchemaIngester(
-    private val ingestConfig: IngestConfig,
-    private val interval: Duration = 4.seconds
+    private val schemaDocRepository: TableDocRepository,
+    private val tableDocEmbeddingRepository: TableDocEmbeddingRepository,
 ) {
-    private val schemaDocDir: Path = ingestConfig.config.resources.schemaMarkdownDir.toAbsolutePath()
-
-    private val structureSchemaDocEndPoint = LLMEndpointBuilder.SchemaIngest.buildStrucutureSchemaDocEndpoint(ingestConfig)
-    private val tableEntitiesExtractionEndpoint = LLMEndpointBuilder.SchemaIngest.buildTableEntitiesExtractionEndpoint(ingestConfig)
-
-    private val schemaDocRepository = TableDocRepository(ingestConfig.pgvector, ingestConfig.embeddingModel)
-    private val tableDocEmbeddingRepository = TableDocEmbeddingRepository(ingestConfig.pgvector, ingestConfig.embeddingModel)
+    companion object {
+        fun fromConfig(ingestConfig: IngestConfig) = SchemaIngester(
+            schemaDocRepository = TableDocRepository(ingestConfig.pgvector, ingestConfig.embeddingModel),
+            tableDocEmbeddingRepository = TableDocEmbeddingRepository(ingestConfig.pgvector, ingestConfig.embeddingModel),
+        )
+    }
 
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    suspend fun ingest() {
-        val schemaDocs: List<Triple<String, String, String>> = schemaDocDir
-            .listDirectoryEntries("*.md")
-            .map { it.normalize() }
-            .map { path ->
-                val schemaDoc = path.readText()
-                val (schemaName, tableName) = path.fileName.pathString
-                    .split(".")
-                    .also { require(it.size == 3) { "schema-doc file name should be <schema_name>.<table_name>.md" } }
-                    .let { Pair(it[0], it[1]) }
 
-                logger.info("got schema doc of schema={} table={}", schemaName, tableName)
-                Triple(schemaName, tableName, schemaDoc)
-            }
-
-        var cnt = AtomicInteger(0)
-        channelFlow {
-            schemaDocs.forEach { (schemaName, tableName, schemaDoc) ->
-                delay(interval)
-                async {
-                    schemaIngrestLogic(
-                        schemaDoc,
-                        structureSchemaDocEndPoint,
-                        tableEntitiesExtractionEndpoint,
-                        tableName
-                    ).let { Pair(schemaName, it) }
-                }
-                    .let { send(it) }
-            }
-        }
-            .map { it.await() }
-            .collect { (schemaname, tableSchema) ->
-                val id = schemaDocRepository.insertAndGetId(schemaname, tableSchema.name, tableSchema)
-                tableDocEmbeddingRepository.insertAllCategories(id, tableSchema)
-                logger.info("[{}/{}] done!", cnt.addAndGet(1), schemaDocs.size)
-            }
+    suspend fun ingest(tableDesc: TableDesc) {
+        val id = schemaDocRepository.insertAndGetId(tableDesc)
+        tableDocEmbeddingRepository.insertAllCategories(id, tableDesc)
     }
+}
+
+@Serializable
+data class TableName(
+    val schemaName: String,
+    val tableName: String
+)
+
+@Serializable
+data class TableDesc(
+    val tableName: TableName,
+    val purpose: String,
+    val summary: String,
+    val dependenciesThought: String,
+    val keys: String,
+    val connectedTables: List<TableName>,
+    val columns: List<Column>,
+    val strongEntities: List<String>,
+    val weakEntities: List<String>,
+) {
+    @Serializable
+    data class Column(
+        val column: String,
+        val description: String
+    )
+
+    fun toDescription(): String = """
+    table: ${this.tableName}
+    
+    # description
+    ${this.summary}
+    ${this.purpose}
+    """.trimIndent()
+
+    fun toDescriptionWithDependencies(): String = """
+    table: ${this.tableName}
+    
+    # description
+    ${this.summary}
+    ${this.purpose}
+    ${this.dependenciesThought}
+    """.trimIndent()
 }

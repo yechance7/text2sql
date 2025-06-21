@@ -2,8 +2,8 @@ package io.ybigta.text2sql.infer.core.logic.table_refine
 
 import dev.langchain4j.service.UserMessage
 import dev.langchain4j.service.V
-import io.ybigta.text2sql.ingest.logic.domain_mapping_ingest.DomainEntitiyMapping
-import io.ybigta.text2sql.ingest.logic.schema_ingest.TableSchemaJson
+import io.ybigta.text2sql.ingest.DomainEntitiyMapping
+import io.ybigta.text2sql.ingest.TableDesc
 import kotlinx.coroutines.coroutineScope
 
 internal class TableRefineLogic(
@@ -13,7 +13,7 @@ internal class TableRefineLogic(
         normalizedQ: String,
         domainEntitiyMappings: List<DomainEntitiyMapping>,
         businessRule: String,
-        tableDocs: List<TableSchemaJson>
+        tableDocs: List<TableDesc>
     ) = coroutineScope {
         val result = tableRefinementEndpoint.request(normalizedQ, domainEntitiyMappings, businessRule, tableDocs)
 
@@ -34,6 +34,6 @@ internal interface TableRefinementEndpoint {
         @V("normalizedQ") normalizedQ: String,
         @V("domainMappings") domainMappings: List<DomainEntitiyMapping>,
         @V("businessRule") businessRule: String,
-        @V("tableDocs") tableDocs: List<TableSchemaJson>
+        @V("tableDocs") tableDocs: List<TableDesc>
     )
 }

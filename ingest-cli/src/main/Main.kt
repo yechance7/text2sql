@@ -5,8 +5,8 @@ import com.github.ajalt.clikt.core.main
 import com.github.ajalt.clikt.core.subcommands
 import io.ybigta.text2sql.ingest.cli.commands.DomainMappingIngestCmd
 import io.ybigta.text2sql.ingest.cli.commands.QaIngestCmd
-import io.ybigta.text2sql.ingest.cli.commands.SchemaDocGenerateCmd
 import io.ybigta.text2sql.ingest.cli.commands.SchemaIngestCmd
+import io.ybigta.text2sql.ingest.cli.commands.TableDescGenerateCmd
 
 /**
  * nested command를 위한 아무기능도 하지 않는 root place holder command
@@ -16,7 +16,7 @@ private class PlaceHolderCmd() : CliktCommand("") {
 }
 
 fun main(args: Array<String>) = PlaceHolderCmd().subcommands(
-    SchemaDocGenerateCmd(),
+    TableDescGenerateCmd(),
     SchemaIngestCmd(),
     QaIngestCmd(),
     DomainMappingIngestCmd()

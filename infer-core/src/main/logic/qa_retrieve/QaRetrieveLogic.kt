@@ -3,8 +3,8 @@ package io.ybigta.text2sql.infer.core.logic.qa_retrieve
 import dev.langchain4j.model.embedding.EmbeddingModel
 import io.ybigta.text2sql.exposed.pgvector.cosDist
 import io.ybigta.text2sql.infer.core.Question
-import io.ybigta.text2sql.ingest.logic.qa_ingest.StructuredQa
-import io.ybigta.text2sql.ingest.logic.schema_ingest.TableSchemaJson
+import io.ybigta.text2sql.ingest.StructuredQa
+import io.ybigta.text2sql.ingest.TableDesc
 import io.ybigta.text2sql.ingest.vectordb.tables.QaEmbeddingTbl
 import io.ybigta.text2sql.ingest.vectordb.tables.QaEmbeddingTbl.EmbeddingType
 import io.ybigta.text2sql.ingest.vectordb.tables.QaTbl
@@ -56,7 +56,7 @@ class QaRetrieveRepository(
             }
     }
 
-    private fun findDocByTableName(tableName: String): TableSchemaJson? = transaction(db) {
+    private fun findDocByTableName(tableName: String): TableDesc? = transaction(db) {
         TableDocTbl
             .select(TableDocTbl.schemaJson)
             .where { TableDocTbl.table eq tableName }
@@ -68,7 +68,7 @@ class QaRetrieveRepository(
 data class QaRetrieveResult(
     val qa: StructuredQa,
     val dist: Float,
-    val sourceTables: List<TableSchemaJson>
+    val sourceTables: List<TableDesc>
 )
 
 class QaRetrieveLogic(

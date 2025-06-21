@@ -4,7 +4,7 @@ import dev.langchain4j.service.UserMessage
 import dev.langchain4j.service.V
 import io.ybigta.text2sql.infer.core.Question
 import io.ybigta.text2sql.infer.core.logic.qa_retrieve.QaRetrieveResult
-import io.ybigta.text2sql.ingest.logic.schema_ingest.TableSchemaJson
+import io.ybigta.text2sql.ingest.TableDesc
 import org.slf4j.LoggerFactory
 
 /**
@@ -18,7 +18,7 @@ class SqlGenerateLogic(
 
     suspend fun generateCode(
         question: Question,
-        tableSchemaList: List<TableSchemaJson>,
+        tableSchemaList: List<TableDesc>,
         qaList: List<QaRetrieveResult>,
     ): String {
         logger.info("requesting sql generation for question: {}", question.question)
@@ -42,7 +42,7 @@ interface SqlGenerationEndpoint {
     )
     fun request(
         @V("question") question: String,
-        @V("table_desc") tableSchemaList: List<TableSchemaJson>,
+        @V("table_desc") tableSchemaList: List<TableDesc>,
         @V("examples") qaList: List<QaRetrieveResult>,
         @V("dialect") dialect: String
     ): String

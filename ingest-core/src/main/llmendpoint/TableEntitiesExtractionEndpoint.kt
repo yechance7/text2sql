@@ -1,12 +1,13 @@
 package io.ybigta.text2sql.ingest.llmendpoint
 
-import io.ybigta.text2sql.ingest.logic.schema_ingest.TableSchemaJson
+import io.ybigta.text2sql.ingest.TableDesc
 
-internal interface TableEntitiesExtractionEndpoint {
+
+interface TableEntitiesExtractionEndpoint {
     /**
      * called when ingesting schema
-     * @param tableSchemaJson [TableSchemaJson.strongEntities] and [TableSchemaJson.weekEntities] may be empty
+     * @param tableDesc [TableDesc.strongEntities] and [TableDesc.weekEntities] may be empty
      * @return list of extracted entities
      */
-    fun request(tableSchemaJson: TableSchemaJson): List<String>
+    fun request(tableDesc: TableDesc): List<String>
 }

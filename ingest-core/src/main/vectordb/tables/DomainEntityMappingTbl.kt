@@ -1,6 +1,6 @@
 package io.ybigta.text2sql.ingest.vectordb.tables
 
-import io.ybigta.text2sql.ingest.logic.domain_mapping_ingest.DomainEntitiyMapping
+import io.ybigta.text2sql.ingest.DomainEntitiyMapping
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.json.jsonb

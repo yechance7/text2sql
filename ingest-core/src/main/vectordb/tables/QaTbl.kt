@@ -1,6 +1,6 @@
 package io.ybigta.text2sql.ingest.vectordb.tables
 
-import io.ybigta.text2sql.ingest.logic.qa_ingest.StructuredQa
+import io.ybigta.text2sql.ingest.StructuredQa
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.json.jsonb

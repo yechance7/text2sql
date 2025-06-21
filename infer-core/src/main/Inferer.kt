@@ -8,7 +8,7 @@ import io.ybigta.text2sql.infer.core.logic.qa_retrieve.QaRetrieveRepository
 import io.ybigta.text2sql.infer.core.logic.qa_retrieve.QaRetrieveResult
 import io.ybigta.text2sql.infer.core.logic.table_retrieve.TblSimiRepository
 import io.ybigta.text2sql.infer.core.logic.table_retrieve.TblSimiRetrieveLogic
-import io.ybigta.text2sql.ingest.logic.schema_ingest.TableSchemaJson
+import io.ybigta.text2sql.ingest.TableDesc
 import kotlinx.coroutines.*
 import java.nio.file.Path
 
@@ -22,7 +22,7 @@ class Inferer(
 ) {
     suspend fun infer(question: Question): String = coroutineScope {
 
-        val retrievedTblList: Deferred<List<TableSchemaJson>> = async { tblSimiRetrieveLogic.retrieve(question) }
+        val retrievedTblList: Deferred<List<TableDesc>> = async { tblSimiRetrieveLogic.retrieve(question) }
         val retrievedQaList: Deferred<List<QaRetrieveResult>> = async { qaRetrieveLogic.retrieve(question) }
 
         retrievedQaList

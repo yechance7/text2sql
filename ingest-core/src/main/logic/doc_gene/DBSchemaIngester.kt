@@ -1,5 +1,7 @@
 package io.ybigta.text2sql.ingest.logic.doc_gene
 
+import io.ybigta.text2sql.ingest.TableName
+import io.ybigta.text2sql.ingest.TableSchema
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.Transaction
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -7,27 +9,27 @@ import org.slf4j.LoggerFactory
 import java.sql.ResultSet
 
 /**
- * ingest table schemas(information) from database.
+ * query table schemas(information) from database.
  * currently only postrgres is only supported DB.
  */
-internal sealed interface DatabaseSchemaIngester {
+internal sealed interface DBSchemaIngester {
     fun requestTableSchemas(): List<TableSchema>
 }
 
 internal class PostgresSchemaIngester(
     private val db: Database
-) : DatabaseSchemaIngester {
+) : DBSchemaIngester {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     override fun requestTableSchemas(): List<TableSchema> = transaction(db) {
-        logger.info("requesting postgresql for list of tables")
+        logger.info("querying postgres for list of tables")
 
-        val tables: List<Pair<String, String>> = """
+        val tables: List<TableName> = """
         SELECT table_schema, table_name
         FROM information_schema.tables
         WHERE table_type = 'BASE TABLE' AND table_schema NOT IN ('pg_catalog', 'information_schema')
         ;
-        """.execSql(this) { rs -> Pair(rs.getString(1), rs.getString(2)) }
+        """.execSql(this) { rs -> TableName(rs.getString(1), rs.getString(2)) }
 
 
         return@transaction tables.map { (schemaName, tableName) ->
@@ -77,7 +79,7 @@ internal class PostgresSchemaIngester(
                     "fk_reference" to rs.getStringOrNull(10),
                 )
             }
-            TableSchema(tableName, schemaName, columnsInfo)
+            TableSchema(TableName(schemaName, tableName), columnsInfo)
         }
     }
 

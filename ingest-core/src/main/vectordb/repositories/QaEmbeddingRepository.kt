@@ -1,7 +1,7 @@
 package io.ybigta.text2sql.ingest.vectordb.repositories
 
 import dev.langchain4j.model.embedding.EmbeddingModel
-import io.ybigta.text2sql.ingest.logic.qa_ingest.StructuredQa
+import io.ybigta.text2sql.ingest.StructuredQa
 import io.ybigta.text2sql.ingest.vectordb.tables.QaEmbeddingTbl
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -9,7 +9,7 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 
-internal class QaEmbeddingRepository(
+class QaEmbeddingRepository(
     private val db: Database,
     private val embeddingModel: EmbeddingModel,
 ) {
