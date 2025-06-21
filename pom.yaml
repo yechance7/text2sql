@@ -8,6 +8,7 @@ packaging: pom
 
 modules:
   - infer-core
+  - infer-server
   - ingest-core
   - ingest-cli
   - exposed-pgvector
@@ -27,6 +28,8 @@ properties:
   dep.logback: 1.4.14
   dep.jackson-kotlin: 2.19.0
   dep.clikt: 5.0.3
+
+  dep.ktor: 3.1.3
 
 dependencies:
   - { groupId: org.jetbrains.kotlin, artifactId: kotlin-stdlib, version: '${kotlin.version}' }

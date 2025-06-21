@@ -1,0 +1,40 @@
+modelVersion: 4.0.0
+
+parent:
+  groupId: io.ybigta
+  artifactId: text2sql
+  version: 0.0.1-alpha
+  relativePath: ../pom.yaml
+
+artifactId: infer-server
+packaging: jar
+
+properties: 'io.ybigta.text2sql.infer.server.MainKt'
+
+dependencies:
+  - { groupId: io.ktor, artifactId: ktor-server-core-jvm, version: '${dep.ktor}' }
+  - { groupId: io.ktor, artifactId: ktor-server-netty-jvm, version: '${dep.ktor}' }
+  - { groupId: ch.qos.logback, artifactId: logback-classic, version: '${dep.logback}' }
+  - { groupId: io.ktor, artifactId: ktor-server-test-host-jvm, version: '${dep.ktor}', scope: test }
+  - { groupId: org.jetbrains.kotlinx, artifactId: kotlinx-coroutines-debug, version: '1.6.4', scope: test }
+
+build:
+  plugins:
+    - groupId: org.apache.maven.plugins
+      artifactId: maven-assembly-plugin
+      version: 2.6
+      configuration:
+        finalName: ${project.artifactId}-${project.version}
+        outputDirectory: ${project.parent.basedir}
+        appendAssemblyId: false
+        descriptorRefs:
+          - jar-with-dependencies
+        archive:
+          manifest:
+            addClasspath: true
+            mainClass: ${mainClass}
+      executions:
+        - id: assemble-all
+          phase: package
+          goals:
+            - single
