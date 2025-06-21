@@ -1,0 +1,81 @@
+PgVector:
+  jdbcUrl: jdbc:postgresql://localhost:5432/vectordb
+  userName: geek-in-the-pink
+  password: f**k
+
+LLMModels:
+  - modelName: gpt-4o-mini
+    apiKey: openai-api-key
+
+EmbeddingModel:
+  modelName: text-embedding-ada-002
+  apiKey: openai-api-key
+
+LLMEndPoints:
+  QuestionTransform:
+    QuestionNormalizeEndpoint:
+      modelName: gpt-4o-mini
+      systemPrompt: |
+        ## request
+        The **main clause** is the core subject of the request, typically a noun phrase (e.g., *"list of employees who joined the company"*).
+        extract and return the **main clause**.
+        ## examples
+        1. Input: Show me a list of employees who joined the company in 2022"
+           Output:  list of employees who joined the company
+        2. Input: Provide a summary of sales transactions for the last quarter, including product names, quantities sold, and total revenue"
+           Output: summary of sales transactions for the last quarter
+        3. Input: List all projects completed by the engineering team
+           Output: projects completed by the engineering team
+        4. Input: Fetch customer complaints received in the last six months, categorized by type and resolution status"
+           Output: customer complaints received in the last six months
+        5. Input: Get me the names of all students who scored above 90% in mathematics
+           Output: names of all students who scored above 90% in mathematics
+
+    QuestionMainClauseExtractionEndpoint:
+      modelName: gpt-4o-mini
+      systemPrompt: |
+        ## request
+        normalized natural language representation of sql query. below is instrucntion about how to normalize.
+        i will give you sentence query you should return normalized form of it.
+        ## instruction
+        1. Normalized Question section: Make question normalization - remove names of tables, technical names of columns - make it more universal. Apply following rules:
+        1.1. Remove post-processing operations (like show chart) - just concentrate on data receiving:
+        1.2. Remove words like "show", "display" - just specify data to be extracted, start with these data;
+        1.3. Substitute any specific conditions with general definition of these conditions (e.g. in 2023 -> for  some time range)
+        1.4. Mandatory substitute any time-based conditions with general definition (e.g. "last year" -> "over a defined timeframe")
+        1.5. Remove the filters details, direct numbers - substitute ALL specific details (names, ids, numbers) with more general definitions
+        (instead of "by week", "by quarter", "over the past month" etc. - use "over time")
+        1.6. Remove names of tables, columns and other details from the normalized_question
+        1.7. Keep any specific definition of entities - e.g. "mobile applications" or "email applications" or "site applications"
+        Transform to the directive form!!!
+        2. Entity to be extracted (requested_entities) -  data to be extracted with main conditions - remove any non-important (time range, ID filters, etc.), but keep important characteristics
+        (e.g. "Display the number of actions for all letter campaigns last year" -> "number of actions for all letter campaigns",
+        "Display the number of actions for all letter campaigns over time" -> "number of actions for all letter campaigns",
+        "Display the number of actions for all letter campaigns last year by week" -> "number of actions for all letter campaigns",
+        "Display the number of site applications for campaigns last year by week" -> "number of site applications for campaigns")
+        "Show me a list of events in the past month including name, permalink, start date, end date, and RSVP count" -> "list of events with their characteristics")
+    QuestionEntityExtractionEndpoint:
+      modelName: gpt-4o-mini
+      systemPrompt: |
+        ## request
+        extract entities from natural language representation of sql query. entity sould be noun. 
+        but it's not constraint to be only one world
+  SqlGeneration:
+    SqlGenerationEndpoint:
+      modelName: gpt-4o-mini
+      systemPrompt: |
+        Note, that you you have the following information:
+          1. Information about tables that are relevant to the question. Some of these tables might be excluded from the final SQL code.
+          2. Examples of SQL queries that close to the user's request (see ** EXAMPLES **).
+        
+        IMPORTANT - The code MUST contain the operations and tables that are requited by question. Do not apply extra operations from SQL code examples if they are not directly mentioned in the question!
+        
+        Follow the rules:
+          1. Check the information from documentation - apply direct recommendations from it!!!
+          2. Mandatory consider the dependencies between tables. Combine the tables in the correct way. Some of these tables might be excluded from the final SQL code.
+          3. Check if the tables combinations satisfy the user request ($question)
+          4. Analyze SQL examples
+          5. Minimize the number of tables in request!!!
+          6. Also when refering table name, add prefix schema name according to table_decs
+        
+        do not return markdown code block format, you should only return plain sql text.

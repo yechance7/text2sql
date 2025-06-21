@@ -1,0 +1,17 @@
+source_db: {
+	shape: cylinder
+}
+
+pgvector: {
+	shape: cylinder
+	table_schema_info
+	qa_pair
+	domain_entity_mapping
+}
+
+source_db -> pgvector.table_schema_info: 1
+
+qa_pair(json) -> pgvector.qa_pair: 2
+
+pgvector.table_schema_info  -> pgvector.domain_entity_mapping: 3
+pgvector.qa_pair -> pgvector.domain_entity_mapping: 4
