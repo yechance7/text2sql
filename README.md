@@ -81,18 +81,17 @@ request example
 first you need to prepare config file. [config file template](ingest_config.example.yaml) is prepared.
 not modifing `systemPrompt` fields is suggested
 
-```
-
-
 ### schema doc generation
 read tables from database and generate json description.
 
 ```bash
+
 java -jar ingest-cli-<version>.jar gene-desc \
   --config <CONFIG_FILE_PATH> \
   --jdbc <JDBC_URL> \
   --user <DB_USER> \
   --password <DB_PW>
+  
 ```
 
 ### schema ingest
