@@ -53,10 +53,10 @@ class Inferer(
                     db = config.pgvector,
                     embeddingModel = config.embeddingModel
                 ),
-                0.01F,
-                0.13F,
-                0.15F,
-                0.15F,
+                0.03F, // level 1 
+                0.13F, // level 2
+                0.15F, // level 3
+                0.15F, // level 4
             ),
             SqlGenerateLogic(
                 LLMEndpointBuilder.SqlGeneration.buildQuestionEntityExtractionEndpoint(config),
