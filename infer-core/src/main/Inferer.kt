@@ -6,6 +6,7 @@ import io.ybigta.text2sql.infer.core.logic.generate.SqlGenerateLogic
 import io.ybigta.text2sql.infer.core.logic.qa_retrieve.QaRetrieveLogic
 import io.ybigta.text2sql.infer.core.logic.qa_retrieve.QaRetrieveRepository
 import io.ybigta.text2sql.infer.core.logic.qa_retrieve.QaRetrieveResult
+import io.ybigta.text2sql.infer.core.logic.table_refine.TableRefineLogic
 import io.ybigta.text2sql.infer.core.logic.table_retrieve.TblSimiRepository
 import io.ybigta.text2sql.infer.core.logic.table_retrieve.TblSimiRetrieveLogic
 import io.ybigta.text2sql.infer.core.logic.table_retrieve.TblSimiRetrieveResult
@@ -19,11 +20,26 @@ import java.nio.file.Path
 class Inferer(
     private val tblSimiRetrieveLogic: TblSimiRetrieveLogic,
     private val qaRetrieveLogic: QaRetrieveLogic,
+    private val tableRefineLogic: TableRefineLogic,
     private val sqlGenerateLogic: SqlGenerateLogic,
 ) {
+    /**
+     * main entry point of text -> sql
+     */
     suspend fun infer(question: Question): InferResult = coroutineScope {
 
-        val retrievedTblList: Deferred<List<TblSimiRetrieveResult>> = async { tblSimiRetrieveLogic.retrieve(question) }
+        val retrievedTblList: Deferred<List<TblSimiRetrieveResult>> = async {
+            val retrievedTables = tblSimiRetrieveLogic
+                .retrieve(question)
+
+            val selectedTables = retrievedTables
+                .map { it.tableDesc }
+                .let { tableDescList -> tableRefineLogic.refineTableDesc(question.question, tableDescList, "") }
+                .let { selectedTableNames -> retrievedTables.filter { it.tableDesc.tableName in selectedTableNames } }
+
+            selectedTables
+        }
+
         val retrievedQaList: Deferred<List<QaRetrieveResult>> = async { qaRetrieveLogic.retrieve(question) }
 
         val generatedSql = sqlGenerateLogic.generateCode(
@@ -57,6 +73,9 @@ class Inferer(
                 0.13F, // level 2
                 0.15F, // level 3
                 0.15F, // level 4
+            ),
+            TableRefineLogic(
+                LLMEndpointBuilder.SqlGeneration.buildTableRefinementEndpoint(config),
             ),
             SqlGenerateLogic(
                 LLMEndpointBuilder.SqlGeneration.buildQuestionEntityExtractionEndpoint(config),

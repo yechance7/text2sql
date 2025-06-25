@@ -2,38 +2,39 @@ package io.ybigta.text2sql.infer.core.logic.table_refine
 
 import dev.langchain4j.service.UserMessage
 import dev.langchain4j.service.V
-import io.ybigta.text2sql.ingest.DomainEntitiyMapping
 import io.ybigta.text2sql.ingest.TableDesc
+import io.ybigta.text2sql.ingest.TableName
 import kotlinx.coroutines.coroutineScope
 
-internal class TableRefineLogic(
+class TableRefineLogic(
     private val tableRefinementEndpoint: TableRefinementEndpoint
 ) {
-    suspend fun refineTableDoc(
-        normalizedQ: String,
-        domainEntitiyMappings: List<DomainEntitiyMapping>,
+    /**
+     * filter necessary table to answer user question(by LLM)
+     */
+    suspend fun refineTableDesc(
+        question: String,
+        tableDescList: List<TableDesc>,
         businessRule: String,
-        tableDocs: List<TableDesc>
-    ) = coroutineScope {
-        val result = tableRefinementEndpoint.request(normalizedQ, domainEntitiyMappings, businessRule, tableDocs)
+    ): List<TableName> = coroutineScope {
+        val selectedTableNames = tableRefinementEndpoint.request(question, tableDescList, businessRule)
 
+        return@coroutineScope selectedTableNames
     }
 }
 
-internal interface TableRefinementEndpoint {
+interface TableRefinementEndpoint {
 
     @UserMessage(
         """
-    normalizedQ: {{normalizedQ}}
-    domainMappings:{{domainMappings}}
+    question: {{question}}
     businessRule: {{businessRule}}
     tableDocs: {{tableDocs}}
     """
     )
     fun request(
-        @V("normalizedQ") normalizedQ: String,
-        @V("domainMappings") domainMappings: List<DomainEntitiyMapping>,
+        @V("question") question: String,
+        @V("tableDocs") tableDescList: List<TableDesc>,
         @V("businessRule") businessRule: String,
-        @V("tableDocs") tableDocs: List<TableDesc>
-    )
+    ): List<TableName>
 }

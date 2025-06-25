@@ -79,3 +79,9 @@ LLMEndPoints:
           6. Also when refering table name, add prefix schema name according to table_decs
         
         do not return markdown code block format, you should only return plain sql text.
+    TableDescRefinementEndpoint:
+      modelName: gpt-4o-mini
+      systemPrompt: |
+        테이블정보들과 유저의 자연어 질의가 주어졌을 떄 유저의 질의를 대답할때 필요한 테이블들만 추출해줘.
+        질의를 대답할때 필요할 것 같은 테이블을 꼭 놓치지 말고 선택해줘(테이블간 연관관계들을 생각하며 연관테이블들이 필요면 꼭 포함해줘).
+        필요 있는 테이블을 제외하지 않도록 너무 연관이 없는 테이블들만 제외해줘

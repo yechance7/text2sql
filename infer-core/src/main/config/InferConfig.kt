@@ -11,6 +11,7 @@ import io.ybigta.text2sql.infer.core.QuestionEntityExtractionEndpoint
 import io.ybigta.text2sql.infer.core.QuestionMainClauseExtractionEndpoint
 import io.ybigta.text2sql.infer.core.QuestionNormalizeEndpoint
 import io.ybigta.text2sql.infer.core.logic.generate.SqlGenerationEndpoint
+import io.ybigta.text2sql.infer.core.logic.table_refine.TableRefinementEndpoint
 import kotlinx.serialization.decodeFromString
 import org.jetbrains.exposed.sql.Database
 import java.nio.file.Path
@@ -98,6 +99,12 @@ internal object LLMEndpointBuilder {
             .builder(SqlGenerationEndpoint::class.java)
             .chatModel(config.llmModels[config.config.llmEndPoints.sqlGeneration.sqlGenerationEndpoint.modelName])
             .systemMessageProvider { _ -> config.config.llmEndPoints.sqlGeneration.sqlGenerationEndpoint.systemPrompt }
+            .build()
+
+        fun buildTableRefinementEndpoint(config: InferConfig): TableRefinementEndpoint = AiServices
+            .builder(TableRefinementEndpoint::class.java)
+            .chatModel(config.llmModels[config.config.llmEndPoints.sqlGeneration.tableDescRefinementEndpoint.modelName])
+            .systemMessageProvider { _ -> config.config.llmEndPoints.sqlGeneration.tableDescRefinementEndpoint.systemPrompt }
             .build()
     }
 }

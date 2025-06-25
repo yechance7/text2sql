@@ -58,6 +58,8 @@ data class InferConfigFileSpec(
 
         @Serializable
         data class SqlGenerationSpec(
+            @SerialName("TableDescRefinementEndpoint")
+            val tableDescRefinementEndpoint: LLMEndPointSpec,
             @SerialName("SqlGenerationEndpoint")
             val sqlGenerationEndpoint: LLMEndPointSpec
         )
