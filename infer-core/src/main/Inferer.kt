@@ -77,9 +77,6 @@ class Inferer(
             TableRefineLogic(
                 LLMEndpointBuilder.SqlGeneration.buildTableRefinementEndpoint(config),
             ),
-            TableRefineLogic(
-                LLMEndpointBuilder.SqlGeneration.buildTableRefinementEndpoint(config),
-            ),
             SqlGenerateLogic(
                 LLMEndpointBuilder.SqlGeneration.buildQuestionEntityExtractionEndpoint(config),
                 "postgres"
