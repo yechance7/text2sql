@@ -1,0 +1,50 @@
+modelVersion: 4.0.0
+
+parent:
+  groupId: io.ybigta
+  artifactId: text2sql
+  version: 0.0.1-alpha
+  relativePath: ../pom.yaml
+
+artifactId: eval-table-retrieve
+packaging: jar
+
+properties:
+  mainClass: io.ybigta.text2sql.eval.table_retrieve.MainKt
+
+dependencies:
+  - { groupId: io.ybigta, artifactId: infer-core, version: '${project.version}' }
+  - { groupId: org.jetbrains.kotlinx, artifactId: kotlinx-serialization-json, version: '${dep.kotlinx-json}' }
+  - { groupId: com.github.ajalt.clikt, artifactId: clikt-jvm, version: '${dep.clikt}' }
+
+build:
+  plugins:
+    - groupId: org.jetbrains.kotlin
+      artifactId: kotlin-maven-plugin
+      version: '${kotlin.version}'
+      extensions: true
+      configuration:
+        compilerPlugins:
+          - kotlinx-serialization
+      dependencies:
+        - groupId: org.jetbrains.kotlin
+          artifactId: kotlin-maven-serialization
+          version: '${kotlin.version}'
+    - groupId: org.apache.maven.plugins
+      artifactId: maven-assembly-plugin
+      version: 2.6
+      configuration:
+        finalName: ${project.artifactId}-${project.version}
+        outputDirectory: ${project.parent.basedir}
+        appendAssemblyId: false
+        descriptorRefs:
+          - jar-with-dependencies
+        archive:
+          manifest:
+            addClasspath: true
+            mainClass: ${mainClass}
+      executions:
+        - id: assemble-all
+          phase: package
+          goals:
+            - single

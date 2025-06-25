@@ -73,7 +73,7 @@ class InferConfig(
     }
 }
 
-internal object LLMEndpointBuilder {
+object LLMEndpointBuilder {
     object QuestionTransform {
         fun buildQuestionNormalizeEndpoint(config: InferConfig): QuestionNormalizeEndpoint = AiServices
             .builder(QuestionNormalizeEndpoint::class.java)
