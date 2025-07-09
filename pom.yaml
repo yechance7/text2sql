@@ -9,6 +9,7 @@ packaging: pom
 modules:
   - eval-table-retrieve
   - infer-core
+  - infer-cli
   - infer-server
   - ingest-core
   - ingest-cli
