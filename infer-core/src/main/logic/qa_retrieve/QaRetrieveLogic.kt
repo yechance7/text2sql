@@ -49,7 +49,6 @@ class QaRetrieveRepository(
                 val sourceTblNames: List<String> = qaDto
                     .structuredQa.dataSource
                     .map { it.table }
-                    .onEach { println(it) }
                     .map { schemaDotTableNameFormat.find(it)?.groupValues?.get(1) ?: it }
 
                 val sourceTblDocs = sourceTblNames.map { name -> findDocByTableName(name)!! }

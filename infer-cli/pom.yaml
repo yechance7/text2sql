@@ -16,6 +16,7 @@ dependencies:
   - { groupId: io.ybigta, artifactId: infer-core, version: '${project.version}' }
   - { groupId: ch.qos.logback, artifactId: logback-classic, version: '${dep.logback}' }
   - { groupId: org.jetbrains.kotlinx, artifactId: kotlinx-coroutines-core, version: '1.6.4' }
+  - { groupId: com.github.ajalt.clikt, artifactId: clikt-jvm, version: '${dep.clikt}' }
 
 build:
   plugins:

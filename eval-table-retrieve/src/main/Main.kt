@@ -55,6 +55,7 @@ internal class EvalTableRetrieveCmd() : CliktCommand("eval-table-retrieve") {
 
 
     override fun run(): Unit = runBlocking(Dispatchers.IO) {
+        // prepare components
         val inferConfig = InferConfig.fromConfigFile(inferConfigFile)
         val datasetFile = readDatasetFile(datasetFile)
 
