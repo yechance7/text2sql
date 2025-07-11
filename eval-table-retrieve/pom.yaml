@@ -3,7 +3,7 @@ modelVersion: 4.0.0
 parent:
   groupId: io.ybigta
   artifactId: text2sql
-  version: 0.0.1
+  version: 0.0.2
   relativePath: ../pom.yaml
 
 artifactId: eval-table-retrieve
@@ -35,7 +35,7 @@ build:
       version: 2.6
       configuration:
         finalName: ${project.artifactId}-${project.version}
-        outputDirectory: ${project.parent.basedir}
+        outputDirectory: ${project.parent.basedir}/jars
         appendAssemblyId: false
         descriptorRefs:
           - jar-with-dependencies

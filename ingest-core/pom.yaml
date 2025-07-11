@@ -3,7 +3,7 @@ modelVersion: 4.0.0
 parent:
   groupId: io.ybigta
   artifactId: text2sql
-  version: 0.0.1
+  version: 0.0.2
   relativePath: ../pom.yaml
 
 artifactId: ingest-core
