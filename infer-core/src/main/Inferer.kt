@@ -12,6 +12,7 @@ import io.ybigta.text2sql.infer.core.logic.table_retrieve.TblSimiRetrieveLogic
 import io.ybigta.text2sql.infer.core.logic.table_retrieve.TblSimiRetrieveResult
 import kotlinx.coroutines.*
 import kotlinx.serialization.json.*
+import org.slf4j.LoggerFactory
 import java.nio.file.Path
 
 /**
@@ -23,6 +24,8 @@ class Inferer(
     private val tableRefineLogic: TableRefineLogic,
     private val sqlGenerateLogic: SqlGenerateLogic,
 ) {
+    private val logger = LoggerFactory.getLogger(this::class.java)
+
     /**
      * main entry point of text -> sql
      */
@@ -36,6 +39,7 @@ class Inferer(
                 .map { it.tableDesc }
                 .let { tableDescList -> tableRefineLogic.refineTableDesc(question.question, tableDescList, "") }
                 .let { selectedTableNames -> retrievedTables.filter { it.tableDesc.tableName in selectedTableNames } }
+                .also { logger.debug("received table refine llm output") }
 
             selectedTables
         }
