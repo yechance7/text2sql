@@ -7,7 +7,6 @@ version: 0.0.2
 packaging: pom
 
 modules:
-  - eval-table-retrieve
   - infer-core
   - infer-cli
   - infer-server
