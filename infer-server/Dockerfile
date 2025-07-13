@@ -7,6 +7,7 @@ COPY ingest-core/pom.yaml ingest-core/pom.yaml
 COPY ingest-cli/pom.yaml ingest-cli/pom.yaml
 COPY infer-core/pom.yaml infer-core/pom.yaml
 COPY infer-server/pom.yaml infer-server/pom.yaml
+COPY infer-cli/pom.yaml infer-cli/pom.yaml  
 COPY exposed-pgvector/pom.yaml exposed-pgvector/pom.yaml
 COPY .mvn/extensions.xml  .mvn/extensions.xml
 RUN mvn dependency:go-offline
@@ -25,6 +26,6 @@ ARG config_path=./infer_config.yaml
 ENV INFER_CONFIG=/app/infer_config.yaml
 EXPOSE 8080
 WORKDIR /app
-COPY --from=build /app/infer-server*.jar app.jar
+COPY --from=build /app/jars/infer-server-*.jar app.jar
 COPY $config_path /app/infer_config.yaml
 ENTRYPOINT ["java", "-jar", "app.jar"]
