@@ -4,7 +4,7 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ybigta.text2sql.infer.server.InferResp
+import io.ybigta.text2sql.infer.core.InferResp
 import io.ybigta.text2sql.infer.server.InferService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async

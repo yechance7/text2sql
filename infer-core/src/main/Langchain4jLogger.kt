@@ -1,4 +1,4 @@
-package io.ybigta.text2sql.infer.cli
+package io.ybigta.text2sql.infer.core
 
 import dev.langchain4j.data.message.SystemMessage
 import dev.langchain4j.data.message.UserMessage

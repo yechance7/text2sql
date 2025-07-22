@@ -7,12 +7,14 @@ import io.ybigta.text2sql.infer.core.logic.qa_retrieve.QaRetrieveLogic
 import io.ybigta.text2sql.infer.core.logic.qa_retrieve.QaRetrieveRepository
 import io.ybigta.text2sql.infer.core.logic.qa_retrieve.QaRetrieveResult
 import io.ybigta.text2sql.infer.core.logic.qa_retrieve.TblRetrieveRepository
+import io.ybigta.text2sql.infer.core.logic.table_retrieve.RetrieveCatgory
 import io.ybigta.text2sql.infer.core.logic.table_retrieve.TblRetrieveLogic
 import io.ybigta.text2sql.infer.core.logic.table_retrieve.TblRetrieveResult
+import io.ybigta.text2sql.ingest.TableName
 import kotlinx.coroutines.*
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.*
 import org.slf4j.LoggerFactory
-import java.nio.file.Path
 
 /**
  * @param dialect dialect name of sql that will be generated
@@ -79,3 +81,55 @@ data class InferResult(
     val tblRetrivedResults: List<TblRetrieveResult>,
     val qaRetrieveResults: List<QaRetrieveResult>
 )
+
+/**
+ * refined version of [InferResult]
+ * used when response format of infer-server, infer-cli
+ */
+@Serializable
+data class InferResp(
+    val question: String,
+    val sql: String,
+    val tblRetriveResults: List<TblRetrieveResp>,
+    val qaRetrieveResps: List<QaRetrieveResp>
+) {
+    @Serializable
+    data class TblRetrieveResp(
+        val tableName: TableName,
+        val embeddingCategory: RetrieveCatgory,
+        val distance: Float?
+    ) {
+        companion object {
+            fun from(tblRetrieve: TblRetrieveResult) = TblRetrieveResp(
+                tableName = tblRetrieve.tableDesc.tableName,
+                embeddingCategory = tblRetrieve.category,
+                distance = tblRetrieve.distance
+            )
+        }
+    }
+
+    @Serializable
+    data class QaRetrieveResp(
+        val question: String,
+        val dist: Float,
+        val searchLevel: Int
+    ) {
+        companion object {
+            fun from(qaRetrieveResult: QaRetrieveResult) = QaRetrieveResp(
+                question = qaRetrieveResult.qa.question,
+                dist = qaRetrieveResult.dist,
+                searchLevel = qaRetrieveResult.searchLevel
+            )
+        }
+    }
+
+    companion object {
+        fun from(inferResult: InferResult) = InferResp(
+            question = inferResult.question,
+            sql = inferResult.sql,
+            tblRetriveResults = inferResult.tblRetrivedResults.map { TblRetrieveResp.from(it) },
+            qaRetrieveResps = inferResult.qaRetrieveResults.map { QaRetrieveResp.from(it) }
+        )
+    }
+}
+
