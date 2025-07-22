@@ -4,18 +4,11 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ybigta.text2sql.infer.core.InferResp
 import io.ybigta.text2sql.infer.server.InferService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-
-@Serializable
-internal data class BatchRequest(val questions: List<String>)
-
-@Serializable
-internal data class BatchResponse(val results: List<InferResp>)
 
 @Serializable
 internal data class InferRequest(
@@ -35,15 +28,13 @@ internal fun Application.routeConfig(
             call.respond(inferResp.await())
         }
         post("/infer-batch") {
-            val batchRequest = call.receive<BatchRequest>()
+            val batchRequest = call.receive<List<String>>()
 
-            val deferredResults = batchRequest.questions.map { question ->
-                scope.async { inferService.infer(question) }
-            }
+            val deferredResults = batchRequest.map { question -> scope.async { inferService.infer(question) } }
 
             val results = deferredResults.map { it.await() }
 
-            call.respond(BatchResponse(results))
+            call.respond(results)
         }
     }
 }

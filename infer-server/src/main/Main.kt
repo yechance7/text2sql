@@ -2,6 +2,7 @@ package io.ybigta.text2sql.infer.server
 
 import io.ktor.server.application.*
 import io.ybigta.text2sql.infer.core.Inferer
+import io.ybigta.text2sql.infer.core.Langchain4jLogger
 import io.ybigta.text2sql.infer.core.config.InferConfig
 import io.ybigta.text2sql.infer.server.config.pluginConfig
 import io.ybigta.text2sql.infer.server.config.routeConfig
@@ -9,17 +10,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.newFixedThreadPoolContext
 import java.nio.file.Path
-import kotlin.io.path.readText
 
 
 fun main(args: Array<String>) = io.ktor.server.netty.EngineMain.main(args)
 
-fun readInferConfig(path: Path): InferConfig =
-    path
-        .toAbsolutePath()
-        .normalize()
-        .readText()
-        .let { InferConfig.fromConfigFile(path) }
 
 fun Application.module() {
     // read config file
@@ -29,7 +23,7 @@ fun Application.module() {
         .getString()
         .let { Path.of(it) }
 
-    val inferConfig = readInferConfig(inferConfigFilePath)
+    val inferConfig = InferConfig.fromConfigFile(inferConfigFilePath, listOf(Langchain4jLogger()))
 
     // create class instances
     val inferService = InferService(
