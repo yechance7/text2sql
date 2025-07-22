@@ -12,13 +12,13 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 @Serializable
-data class BatchRequest(val questions: List<String>)
+internal data class BatchRequest(val questions: List<String>)
 
 @Serializable
-data class BatchResponse(val results: List<InferResp>)
+internal data class BatchResponse(val results: List<InferResp>)
 
 @Serializable
-data class InferRequest(
+internal data class InferRequest(
     val userId: String,
     val questions: String
 )

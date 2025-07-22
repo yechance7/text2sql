@@ -22,8 +22,10 @@ class Langchain4jLogger : ChatModelListener {
             appendLine()
             appendLine("user_message:")
             appendLine(userMessage?.singleText()?.prependIndent("    "))
+            appendLine()
             appendLine("response:")
             appendLine(message?.prependIndent("    "))
+            appendLine()
         }.prependIndent("    ")
 
         logger.trace(logConent)

@@ -11,7 +11,7 @@ import io.ybigta.text2sql.ingest.TableName
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.Serializable
 
-class InferService(
+internal class InferService(
     private val inferer: Inferer,
     private val inferConfig: InferConfig
 ) {
@@ -27,7 +27,7 @@ class InferService(
 }
 
 @Serializable
-data class InferResp(
+internal data class InferResp(
     val question: String,
     val sql: String,
     val tblRetriveResults: List<TblRetrieveResp>,
@@ -44,7 +44,7 @@ data class InferResp(
 }
 
 @Serializable
-data class TblRetrieveResp(
+internal data class TblRetrieveResp(
     val tableName: TableName,
     val embeddingCategory: RetrieveCatgory,
     val distance: Float?
@@ -59,7 +59,7 @@ data class TblRetrieveResp(
 }
 
 @Serializable
-data class QaRetrieveResp(
+internal data class QaRetrieveResp(
     val question: String,
     val dist: Float,
     val searchLevel: Int
