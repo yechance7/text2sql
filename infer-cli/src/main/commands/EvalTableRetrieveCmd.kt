@@ -17,6 +17,8 @@ import io.ybigta.text2sql.infer.core.logic.qa_retrieve.TblRetrieveRepository
 import io.ybigta.text2sql.infer.core.logic.table_retrieve.RetrieveCatgory
 import io.ybigta.text2sql.infer.core.logic.table_retrieve.TblRetrieveLogic
 import io.ybigta.text2sql.infer.core.logic.table_retrieve.TblRetrieveResult
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.runBlocking
@@ -111,7 +113,7 @@ internal class EvalTableRetrieveCmd() : CliktCommand("eval-table-retrieve") {
         // retrieve tables
         val processedCnt = AtomicInteger(0)
         val retrieveResults = testDataSet.channelFlowMapAsync(interval.milliseconds) { data ->
-            val question = Question.fromConfig(data.question, inferConfig, dispatcher)
+            val question = Question.fromConfig(data.question, inferConfig, CoroutineScope(dispatcher + SupervisorJob()))
             val retrievedTables = tblRetrieveLogic.retrieve(question)
 
             logger.info("done {}/{}", processedCnt.incrementAndGet(), testDataSet.count())

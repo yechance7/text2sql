@@ -34,12 +34,15 @@ fun Application.mainModule() {
         )
     )
 
+    val inferWorkers = newFixedThreadPoolContext(30, "infer-worker")
+    val inferScope = CoroutineScope(inferWorkers + SupervisorJob())
     configInferRoute(
         InferController(
-            scope = CoroutineScope(newFixedThreadPoolContext(30, "thread-pool") + SupervisorJob()),
+            scope = inferScope,
             inferService = InferService(
-                Inferer.fromConfig(inferConfig),
-                inferConfig
+                inferer = Inferer.fromConfig(config = inferConfig),
+                inferConfig = inferConfig,
+                scope = inferScope
             )
         )
     )

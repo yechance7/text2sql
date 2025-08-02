@@ -13,6 +13,8 @@ import io.ybigta.text2sql.infer.cli.writeJson
 import io.ybigta.text2sql.infer.core.Inferer
 import io.ybigta.text2sql.infer.core.Question
 import io.ybigta.text2sql.infer.core.config.InferConfig
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.runBlocking
@@ -45,7 +47,7 @@ class BatchInferCmd() : CliktCommand("batch-infer") {
 
         questions
             .channelFlowMapAsync(interval.milliseconds) { question ->
-                val inferResult = inferer.infer(Question.fromConfig(question, inferConfig, dispatcher))
+                val inferResult = inferer.infer(Question.fromConfig(question, inferConfig, CoroutineScope(dispatcher + SupervisorJob())))
                 OutputSpec(
                     question = question,
                     sql = inferResult.sql
