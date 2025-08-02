@@ -1,4 +1,4 @@
-package io.ybigta.text2sql.infer.server.app.model
+package io.ybigta.text2sql.infer.server.controller.model
 
 import io.ybigta.text2sql.ingest.TableDesc
 import io.ybigta.text2sql.ingest.TableDesc.Column

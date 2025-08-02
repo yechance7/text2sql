@@ -1,11 +1,11 @@
-package io.ybigta.text2sql.infer.server.route
+package io.ybigta.text2sql.infer.server.controller
 
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ybigta.text2sql.infer.server.app.model.TblDescReq
-import io.ybigta.text2sql.infer.server.app.model.TblDescResp
+import io.ybigta.text2sql.infer.server.controller.model.TblDescReq
+import io.ybigta.text2sql.infer.server.controller.model.TblDescResp
 import io.ybigta.text2sql.infer.server.repository.TblDocRepository
 import io.ybigta.text2sql.ingest.SchemaIngester
 import org.slf4j.Logger

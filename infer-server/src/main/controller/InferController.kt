@@ -1,9 +1,9 @@
-package io.ybigta.text2sql.infer.server.route
+package io.ybigta.text2sql.infer.server.controller
 
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ybigta.text2sql.infer.server.route.model.InferReq
+import io.ybigta.text2sql.infer.server.controller.model.InferReq
 import io.ybigta.text2sql.infer.server.service.InferService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async

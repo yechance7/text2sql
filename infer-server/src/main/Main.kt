@@ -8,9 +8,9 @@ import io.ybigta.text2sql.infer.server.config.configCallLogging
 import io.ybigta.text2sql.infer.server.config.configContentNegotiation
 import io.ybigta.text2sql.infer.server.config.route.configInferRoute
 import io.ybigta.text2sql.infer.server.config.route.configIngestRoute
+import io.ybigta.text2sql.infer.server.controller.InferController
+import io.ybigta.text2sql.infer.server.controller.IngestController
 import io.ybigta.text2sql.infer.server.repository.TblDocRepository
-import io.ybigta.text2sql.infer.server.route.InferController
-import io.ybigta.text2sql.infer.server.route.IngestController
 import io.ybigta.text2sql.infer.server.service.InferService
 import io.ybigta.text2sql.ingest.SchemaIngester
 import io.ybigta.text2sql.ingest.config.IngestConfig
