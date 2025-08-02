@@ -6,8 +6,7 @@ import io.ktor.server.routing.*
 import io.ybigta.text2sql.infer.server.controller.model.InferReq
 import io.ybigta.text2sql.infer.server.service.InferService
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.async
-import kotlinx.serialization.json.Json
+import kotlinx.coroutines.withContext
 
 internal class InferController(
     private val scope: CoroutineScope,
@@ -16,10 +15,11 @@ internal class InferController(
     suspend fun infer(call: RoutingCall) {
         val inferReq = call.receive<InferReq>()
 
-        val inferResp = scope.async {
-            inferService.infer(Json.encodeToString(inferReq))
+        val inferResp = withContext(scope.coroutineContext) {
+            inferService.infer(inferReq.question)
         }
 
-        call.respond(inferResp.await())
+
+        call.respond(inferResp)
     }
 }
