@@ -1,4 +1,4 @@
-package io.ybigta.text2sql.infer.server
+package io.ybigta.text2sql.infer.server.service
 
 import io.ybigta.text2sql.infer.core.InferResp
 import io.ybigta.text2sql.infer.core.Inferer
