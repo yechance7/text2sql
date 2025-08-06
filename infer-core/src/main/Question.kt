@@ -2,7 +2,10 @@ package io.ybigta.text2sql.infer.core
 
 import io.ybigta.text2sql.infer.core.config.InferConfig
 import io.ybigta.text2sql.infer.core.config.LLMEndpointBuilder
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import org.slf4j.LoggerFactory
 
 
@@ -11,38 +14,38 @@ class Question(
     private val questionNormalizeEndpoint: QuestionNormalizeEndpoint,
     private val questionMainClauseExtractionEndpoint: QuestionMainClauseExtractionEndpoint,
     private val questionEntityExtractionEndpoint: QuestionEntityExtractionEndpoint,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val scope: CoroutineScope
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    val normalizedQ: Deferred<String> = GlobalScope
-        .async(dispatcher) {
+    val normalizedQ: Deferred<String> = scope
+        .async {
             questionNormalizeEndpoint
                 .request(question)
                 .also { logger.debug("received normalized question llm output") }
         }
 
-    val mainClause: Deferred<String> = GlobalScope
-        .async(dispatcher) {
+    val mainClause: Deferred<String> = scope
+        .async {
             questionMainClauseExtractionEndpoint
                 .request(question)
                 .also { logger.debug("received question mainclause extraction llm output") }
         }
 
-    val extractedEntities: Deferred<List<String>> = GlobalScope
-        .async(dispatcher) {
+    val extractedEntities: Deferred<List<String>> = scope
+        .async {
             questionEntityExtractionEndpoint
                 .request(question)
                 .also { logger.debug("received question entities extraction llm output") }
         }
 
     companion object {
-        fun fromConfig(question: String, config: InferConfig, dispatcher: CoroutineDispatcher = Dispatchers.IO) = Question(
+        fun fromConfig(question: String, config: InferConfig, scope: CoroutineScope = GlobalScope) = Question(
             question,
             LLMEndpointBuilder.QuestionTransform.buildQuestionNormalizeEndpoint(config),
             LLMEndpointBuilder.QuestionTransform.buildQuestionMainClauseExtractionEndpoint(config),
             LLMEndpointBuilder.QuestionTransform.buildQuestionEntityExtractionEndpoint(config),
-            dispatcher
+            scope
         )
     }
 }

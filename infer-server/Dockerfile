@@ -14,7 +14,7 @@ RUN mvn dependency:go-offline
 
 # Stage 2: Build Application
 FROM maven:3.9-amazoncorretto-21 AS build
-WORKDIR /app
+WORKDIR /route
 COPY --from=cache /root/.m2 /root/.m2
 COPY . .
 RUN mvn clean package -pl infer-server -am
@@ -23,9 +23,9 @@ RUN mvn clean package -pl infer-server -am
 FROM amazoncorretto:21 AS runtime
 ARG config_path=./infer_config.yaml
 # never override INFER_CONFIG in cli
-ENV INFER_CONFIG=/app/infer_config.yaml
+ENV INFER_CONFIG=/route/infer_config.yaml
 EXPOSE 8080
-WORKDIR /app
-COPY --from=build /app/jars/infer-server-*.jar app.jar
-COPY $config_path /app/infer_config.yaml
-ENTRYPOINT ["java", "-jar", "app.jar"]
+WORKDIR /route
+COPY --from=build /app/jars/infer-server-*.jar route.jar
+COPY $config_path /route/infer_config.yaml
+ENTRYPOINT ["java", "-jar", "route.jar"]

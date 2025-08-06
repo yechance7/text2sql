@@ -12,9 +12,7 @@ import io.ybigta.text2sql.infer.core.Inferer
 import io.ybigta.text2sql.infer.core.Langchain4jLogger
 import io.ybigta.text2sql.infer.core.Question
 import io.ybigta.text2sql.infer.core.config.InferConfig
-import kotlinx.coroutines.ExecutorCoroutineDispatcher
-import kotlinx.coroutines.newFixedThreadPoolContext
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import kotlinx.serialization.json.Json
 import java.nio.file.Path
 
@@ -32,7 +30,7 @@ internal class InferCmd : CliktCommand("infer") {
         val inferConfig = InferConfig.fromConfigFile(configFile, listeners)
         val inferer = Inferer.fromConfig(inferConfig)
 
-        val inferResult = inferer.infer(Question.fromConfig(question, inferConfig, dispatcher))
+        val inferResult = inferer.infer(Question.fromConfig(question, inferConfig, CoroutineScope(dispatcher + SupervisorJob())))
         if (withMetadata) echo(Json { prettyPrint = true }.encodeToString(InferResp.from(inferResult)))
         else echo(inferResult.sql)
     }

@@ -5,7 +5,7 @@
         </encoder>
     </appender>
     <logger name="Exposed" level="WARN"/>
-    <logger name="io.ybigta.text2sql.infer.core.Langchain4jLogger" level="TRACE"/>
+<!--    <logger name="io.ybigta.text2sql.infer.core.Langchain4jLogger" level="TRACE"/>-->
     <root level="DEBUG">
         <appender-ref ref="STDOUT"/>
     </root>

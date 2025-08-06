@@ -4,8 +4,16 @@ import io.ktor.server.application.*
 import io.ybigta.text2sql.infer.core.Inferer
 import io.ybigta.text2sql.infer.core.Langchain4jLogger
 import io.ybigta.text2sql.infer.core.config.InferConfig
-import io.ybigta.text2sql.infer.server.config.pluginConfig
-import io.ybigta.text2sql.infer.server.config.routeConfig
+import io.ybigta.text2sql.infer.server.config.configCallLogging
+import io.ybigta.text2sql.infer.server.config.configContentNegotiation
+import io.ybigta.text2sql.infer.server.config.route.configInferRoute
+import io.ybigta.text2sql.infer.server.config.route.configIngestRoute
+import io.ybigta.text2sql.infer.server.controller.InferController
+import io.ybigta.text2sql.infer.server.controller.IngestController
+import io.ybigta.text2sql.infer.server.repository.TblDocRepository
+import io.ybigta.text2sql.infer.server.service.InferService
+import io.ybigta.text2sql.ingest.SchemaIngester
+import io.ybigta.text2sql.ingest.config.IngestConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.newFixedThreadPoolContext
@@ -15,28 +23,56 @@ import java.nio.file.Path
 fun main(args: Array<String>) = io.ktor.server.netty.EngineMain.main(args)
 
 
-fun Application.module() {
-    // read config file
-    val inferConfigFilePath = environment
+fun Application.mainModule() {
+    val inferConfig = readInferConfig(listOf(Langchain4jLogger()))
+    val ingestConfig = readIngestConfig()
+
+    configIngestRoute(
+        IngestController(
+            schemaIngester = SchemaIngester.fromConfig(ingestConfig),
+            tblDocRepo = TblDocRepository(ingestConfig.pgvector)
+        )
+    )
+
+    val inferWorkers = newFixedThreadPoolContext(30, "infer-worker")
+    val inferScope = CoroutineScope(inferWorkers + SupervisorJob())
+    configInferRoute(
+        InferController(
+            scope = inferScope,
+            inferService = InferService(
+                inferer = Inferer.fromConfig(config = inferConfig),
+                inferConfig = inferConfig,
+                scope = inferScope
+            )
+        )
+    )
+
+    configContentNegotiation()
+    configCallLogging()
+}
+
+private fun Application.readIngestConfig(): IngestConfig {
+    val ingestConfigFilePath = environment
         .config
-        .property("infer-config.file-path")
+        .property("text2sql-config.ingest.config-file-path")
         .getString()
         .let { Path.of(it) }
 
-    val inferConfig = InferConfig.fromConfigFile(inferConfigFilePath, listOf(Langchain4jLogger()))
+    val ingestConfig = IngestConfig.fromConfigFile(ingestConfigFilePath)
 
-    // create class instances
-    val inferService = InferService(
-        Inferer.fromConfig(inferConfig),
-        inferConfig
-    )
-
-
-    val inferRequestDispatcher = newFixedThreadPoolContext(30, "thread-pool")
-    val inferRequestScope = CoroutineScope(inferRequestDispatcher + SupervisorJob())
-
-
-    routeConfig(inferRequestScope, inferService)
-    pluginConfig()
+    return ingestConfig
 }
 
+private fun Application.readInferConfig(
+    langchain4jLoggers: List<Langchain4jLogger> = emptyList()
+): InferConfig {
+    val inferConfigFilePath = environment
+        .config
+        .property("text2sql-config.infer.config-file-path")
+        .getString()
+        .let { Path.of(it) }
+
+    val inferConfig = InferConfig.fromConfigFile(inferConfigFilePath, langchain4jLoggers)
+
+    return inferConfig
+}
