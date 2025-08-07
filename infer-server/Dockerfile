@@ -22,10 +22,13 @@ RUN mvn clean package -pl infer-server -am
 # Stage 3: Create the Runtime Image
 FROM amazoncorretto:21 AS runtime
 ARG config_path=./infer_config.yaml
+ARG ingest_config_path=./ingest_config.yaml
 # never override INFER_CONFIG in cli
 ENV INFER_CONFIG=/route/infer_config.yaml
+ENV INGEST_CONFIG=/route/ingest_config.yaml
 EXPOSE 8080
 WORKDIR /route
-COPY --from=build /app/jars/infer-server-*.jar route.jar
+COPY --from=build /route/jars/infer-server-*.jar route.jar
 COPY $config_path /route/infer_config.yaml
+COPY $ingest_config_path /route/ingest_config.yaml
 ENTRYPOINT ["java", "-jar", "route.jar"]
