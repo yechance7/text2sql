@@ -14,4 +14,10 @@ internal object QaGeneratedTbl : IntIdTable("qa_generated", "qa_generated_id") {
     val sql = text("sql")
     val status = pgEnumeration<QaStageStatus>("status", "qa_stage_status")
     val createdAt = timestamp("created_at").defaultExpression(CurrentTimestamp)
+
+    data class Dto(
+        val question: String,
+        val sql: String,
+        val status: QaStageStatus
+    )
 }
