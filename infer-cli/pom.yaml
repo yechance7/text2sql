@@ -46,6 +46,4 @@ build:
         compilerPlugins:
           - kotlinx-serialization
       dependencies:
-        - groupId: org.jetbrains.kotlin
-          artifactId: kotlin-maven-serialization
-          version: '${kotlin.version}'
+        - { groupId: org.jetbrains.kotlin, artifactId: kotlin-maven-serialization, version: '${kotlin.version}' }
