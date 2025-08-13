@@ -7,6 +7,7 @@ import io.ybigta.text2sql.infer.core.config.InferConfig
 import io.ybigta.text2sql.infer.server.repository.QaGeneratedRepository
 import io.ybigta.text2sql.infer.server.repository.QaStageStatus
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.withContext
 
 internal class InferService(
     private val inferer: Inferer,
@@ -16,17 +17,15 @@ internal class InferService(
 ) {
     suspend fun infer(question: String): InferResp {
         val q = Question.fromConfig(question, inferConfig, scope)
-
         val inferResult = inferer.infer(q)
-
         val inferResp = InferResp.from(inferResult)
 
-        qaGeneratedRepo.insert(
+        val generatedId = qaGeneratedRepo.insert(
             inferResp.question,
             inferResp.sql,
             QaStageStatus.PENDING
         )
 
-        return inferResp
+        return inferResp.copy(qaGeneratedId = generatedId)
     }
 }
