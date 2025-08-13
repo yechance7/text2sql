@@ -15,8 +15,13 @@ properties:
 dependencies:
   - { groupId: io.ybigta, artifactId: infer-core, version: '${project.version}' }
   - { groupId: io.ybigta, artifactId: ingest-core, version: '${project.version}' }
+
   - { groupId: ch.qos.logback, artifactId: logback-classic, version: '${dep.logback}' }
   - { groupId: org.jetbrains.kotlinx, artifactId: kotlinx-coroutines-core, version: '1.6.4' }
+
+  - { groupId: org.jetbrains.exposed, artifactId: exposed-core, version: '${dep.exposed}' }
+  - { groupId: org.jetbrains.exposed, artifactId: exposed-jdbc, version: '${dep.exposed}' }
+  - { groupId: org.jetbrains.exposed, artifactId: exposed-kotlin-datetime, version: '${dep.exposed}' }
 
   - { groupId: io.ktor, artifactId: ktor-server-core-jvm, version: '${dep.ktor}' }
   - { groupId: io.ktor, artifactId: ktor-server-netty-jvm, version: '${dep.ktor}' }
@@ -54,6 +59,4 @@ build:
         compilerPlugins:
           - kotlinx-serialization
       dependencies:
-        - groupId: org.jetbrains.kotlin
-          artifactId: kotlin-maven-serialization
-          version: '${kotlin.version}'
+        - { groupId: org.jetbrains.kotlin, artifactId: kotlin-maven-serialization, version: '${kotlin.version}' }
