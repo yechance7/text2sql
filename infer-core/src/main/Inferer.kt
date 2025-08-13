@@ -91,7 +91,8 @@ data class InferResp(
     val question: String,
     val sql: String,
     val tblRetriveResults: List<TblRetrieveResp>,
-    val qaRetrieveResps: List<QaRetrieveResp>
+    val qaRetrieveResps: List<QaRetrieveResp>,
+    val qaGeneratedId: Int? = null
 ) {
     @Serializable
     data class TblRetrieveResp(
