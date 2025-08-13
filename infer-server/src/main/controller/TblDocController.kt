@@ -8,15 +8,11 @@ import io.ybigta.text2sql.infer.server.controller.model.TblDescReq
 import io.ybigta.text2sql.infer.server.controller.model.TblDescResp
 import io.ybigta.text2sql.infer.server.repository.TblDocRepository
 import io.ybigta.text2sql.ingest.SchemaIngester
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
-internal class IngestController(
+internal class TblDocController(
     private val schemaIngester: SchemaIngester,
     private val tblDocRepo: TblDocRepository
 ) {
-    private val logger: Logger = LoggerFactory.getLogger(this::class.java)
-
     suspend fun getAllTblDocs(call: RoutingCall) {
         val resp = tblDocRepo
             .findAll()

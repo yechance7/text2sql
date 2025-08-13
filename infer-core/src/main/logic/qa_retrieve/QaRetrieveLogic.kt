@@ -20,6 +20,9 @@ class QaRetrieveRepository(
     private val db: Database,
     private val embeddingModel: EmbeddingModel,
 ) {
+
+    private val logger = LoggerFactory.getLogger(this::class.java)
+
     fun retrieve(queryText: String, maxDist: Float, embeddingTypes: List<EmbeddingType>, serachLevel: Int): List<QaRetrieveResult> = transaction(db) {
         val nomarliedQEmbedding = embeddingModel.embed(queryText).content().vector()
         val cosDist = (QaEmbeddingTbl.embedding cosDist nomarliedQEmbedding).alias("cos_dist")
@@ -51,7 +54,11 @@ class QaRetrieveRepository(
                     .map { it.table }
                     .map { schemaDotTableNameFormat.find(it)?.groupValues?.get(1) ?: it }
 
-                val sourceTblDocs = sourceTblNames.map { name -> findDocByTableName(name)!! }
+                val sourceTblDocs = sourceTblNames.mapNotNull { name ->
+                    val tblName = findDocByTableName(name)
+                    if (tblName == null) logger.error("invalid table-name($name) exists in qa.structured_qa column")
+                    tblName
+                }
                 QaRetrieveResult(qaDto.structuredQa, qaDto.answer, dist, sourceTblDocs, serachLevel)
             }
     }
