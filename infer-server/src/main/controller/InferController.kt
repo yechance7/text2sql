@@ -29,9 +29,10 @@ internal class InferController(
 ) {
     suspend fun infer(call: RoutingCall) {
         val inferReq = call.receive<InferReq>()
+        println("Received userId: ${inferReq.userId}")
 
         val inferResp = withContext(scope.coroutineContext) {
-            inferService.infer(inferReq.question)
+            inferService.infer(inferReq.userId, inferReq.question)
         }
 
         call.respond(inferResp)
@@ -39,9 +40,10 @@ internal class InferController(
 
     suspend fun batchInfer(call: RoutingCall) {
         val batchRequest = call.receive<BatchInferReq>()
+        val userId = batchRequest.userId
 
         val deferredResults = batchRequest.questions.map { question ->
-            scope.async { inferService.infer(question) }
+            scope.async { inferService.infer(userId, question) }
         }
 
         val results = deferredResults.map { it.await() }

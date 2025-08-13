@@ -25,12 +25,14 @@ class SqlGenerateLogic(
     }
 
     fun generateCode(
+        userId: String,
         question: Question,
         tableSchemaList: List<TableDesc>,
         qaList: List<QaRetrieveResult>,
     ): String {
         val payload = SqlGenerationEndpoint.Payload(
             databaseDialect = dialect,
+            userId = userId,
             question = question.question,
             tableDescList = tableSchemaList,
             similarQuestionAnswerPairs = qaList.map { Qa(it.qa.question, it.answer) }
@@ -47,6 +49,7 @@ interface SqlGenerationEndpoint {
     @Serializable
     data class Payload(
         val databaseDialect: String,
+        val userId: String, 
         val question: String,
         val tableDescList: List<TableDesc>,
         val similarQuestionAnswerPairs: List<Qa>

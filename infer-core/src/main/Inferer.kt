@@ -29,12 +29,13 @@ class Inferer(
     /**
      * main entry point of text -> sql
      */
-    suspend fun infer(question: Question): InferResult = coroutineScope {
+    suspend fun infer(userId: String, question: Question): InferResult = coroutineScope {
 
         val retrievedTblList: Deferred<List<TblRetrieveResult>> = async { tblRetrieveLogic.retrieve(question) }
         val retrievedQaList: Deferred<List<QaRetrieveResult>> = async { qaRetrieveLogic.retrieve(question) }
 
         val generatedSql = sqlGenerateLogic.generateCode(
+            userId,
             question,
             retrievedTblList.await().map { it.tableDesc },
             retrievedQaList.await(),

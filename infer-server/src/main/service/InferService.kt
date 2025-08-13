@@ -15,9 +15,9 @@ internal class InferService(
     private val scope: CoroutineScope,
     private val qaGeneratedRepo: QaGeneratedRepository
 ) {
-    suspend fun infer(question: String): InferResp {
+    suspend fun infer(userId: String, question: String): InferResp {
         val q = Question.fromConfig(question, inferConfig, scope)
-        val inferResult = inferer.infer(q)
+        val inferResult = inferer.infer(userId, q)
         val inferResp = InferResp.from(inferResult)
 
         val generatedId = qaGeneratedRepo.insert(
